@@ -1,0 +1,16 @@
+html { scroll-behavior: smooth; }
+body { font-family: 'Noto Sans SC', sans-serif; }
+.font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+.nav-link { position: relative; }
+.nav-link::after {
+    content: ''; position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 2px; background: #22c55e; transition: width 0.3s ease;
+}
+.nav-link:hover::after { width: 100%; }
+.news-card { transition: all 0.3s ease; }
+.news-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+.filter-btn.active { background: #22c55e; color: white; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }

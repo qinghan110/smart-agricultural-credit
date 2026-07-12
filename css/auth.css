@@ -1,0 +1,34 @@
+body { font-family: 'Noto Sans SC', sans-serif; background: #faf8f5; }
+.font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+.auth-card {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+}
+.input-field:focus { box-shadow: 0 0 0 3px rgba(34,197,94,0.15); border-color: #22c55e; }
+.type-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.type-card:hover { transform: translateY(-2px); }
+.type-card.selected { transform: scale(1.02); }
+.type-card.user.selected { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+.type-card.bank.selected { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+.type-card.admin.selected { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.2); }
+.slide-panel {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.slide-panel.hidden-panel {
+  opacity: 0;
+  transform: translateX(12px);
+  pointer-events: none;
+  position: absolute;
+  width: 100%;
+}
+.slide-panel.visible-panel {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  position: relative;
+}
