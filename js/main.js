@@ -190,18 +190,8 @@
     calculateLoan();
 
     /* ---- 登录状态 ---- */
-    // 注册按钮：设置注册标记
-    const registerLink = document.getElementById('registerLink');
-    if (registerLink) {
-        registerLink.addEventListener('click', () => {
-            App.safeSetSession('goRegister', 'true');
-        });
-    }
-
-    // 退出按钮
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.addEventListener('click', () => App.logout());
-
+    // 退出按钮 (使用onclick，无需绑定)
+    
     // 页面加载时检测登录状态
     document.addEventListener('DOMContentLoaded', () => App.updateNavLoginState());
 })();

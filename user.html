@@ -49,10 +49,17 @@
                     <a href="user.html" class="nav-link text-sm font-medium text-agri-700 transition-colors">个人中心</a>
                 </nav>
                 <div class="flex items-center gap-3">
-                    <button onclick="logout()" class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg hover:from-gray-700 hover:to-gray-800 transition-all shadow-md inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        退出登录
-                    </button>
+                    <div id="headerNotLoggedIn" class="flex items-center gap-3">
+                        <a href="auth.html" class="px-5 py-2 text-sm font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-colors">登录</a>
+                        <a href="auth.html" onclick="localStorage.setItem('goRegister','true')" class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-agri-600 to-agri-700 rounded-lg hover:from-agri-700 hover:to-agri-800 transition-all shadow-md shadow-agri-200">注册</a>
+                    </div>
+                    <div id="headerLoggedIn" class="hidden items-center gap-3">
+                        <a href="user.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 transition-colors">
+                            <div class="w-7 h-7 rounded-full bg-agri-500 flex items-center justify-center text-white font-semibold text-sm" id="navAvatar">U</div>
+                            <span class="text-sm text-gray-700" id="navUsername">用户</span>
+                        </a>
+                        <button onclick="logout()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
+                    </div>
                 </div>
             </div>
         </div>

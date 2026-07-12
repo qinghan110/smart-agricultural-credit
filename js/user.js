@@ -35,6 +35,11 @@
         if (!currentUser) {
             document.getElementById('notLoggedIn').classList.remove('hidden');
             document.getElementById('userCenter').classList.add('hidden');
+            // 更新导航栏状态
+            const hNot = document.getElementById('headerNotLoggedIn');
+            const hYes = document.getElementById('headerLoggedIn');
+            if (hNot) hNot.classList.remove('hidden');
+            if (hYes) hYes.classList.add('hidden');
             return false;
         }
         const users = App.getUsers();
@@ -45,6 +50,15 @@
         }
         document.getElementById('notLoggedIn').classList.add('hidden');
         document.getElementById('userCenter').classList.remove('hidden');
+        // 更新导航栏状态
+        const hNot2 = document.getElementById('headerNotLoggedIn');
+        const hYes2 = document.getElementById('headerLoggedIn');
+        if (hNot2) hNot2.classList.add('hidden');
+        if (hYes2) { hYes2.classList.remove('hidden'); hYes2.classList.add('flex'); }
+        const avatar = document.getElementById('navAvatar');
+        const uname = document.getElementById('navUsername');
+        if (avatar) avatar.textContent = (currentUser.realName || currentUser.username).charAt(0);
+        if (uname) uname.textContent = currentUser.realName || currentUser.username;
         return true;
     }
 
