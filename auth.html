@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>统一登录 · 智能惠农信贷</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Noto Sans SC"', 'sans-serif'],
+            display: ['"Outfit"', '"Noto Sans SC"', 'sans-serif'],
+          },
+          colors: {
+            agri: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+            fin: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+            purple: { 50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 300: '#d8b4fe', 400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 700: '#7c3aed', 800: '#6b21a8', 900: '#581c87' },
+            earth: { 50: '#faf8f5', 100: '#f3efe8', 200: '#e8e0d4', 300: '#d4c8b4', 400: '#b8a68a', 500: '#a08e70', 600: '#8a7a60', 700: '#736654', 800: '#5e5448', 900: '#4a4238' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Noto Sans SC', sans-serif; background: #faf8f5; }
+    .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+    .auth-card {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+    }
+    .input-field:focus { box-shadow: 0 0 0 3px rgba(34,197,94,0.15); border-color: #22c55e; }
+    .type-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .type-card:hover { transform: translateY(-2px); }
+    .type-card.selected { transform: scale(1.02); }
+    .type-card.user.selected { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+    .type-card.bank.selected { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+    .type-card.admin.selected { border-color: #9333ea; box-shadow: 0 0 0 3px rgba(147,51,234,0.2); }
+    .slide-panel {
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+    .slide-panel.hidden-panel {
+      opacity: 0;
+      transform: translateX(12px);
+      pointer-events: none;
+      position: absolute;
+      width: 100%;
+    }
+    .slide-panel.visible-panel {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+      position: relative;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center px-4 py-10 bg-earth-50">
+
+  <div class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-5 rounded-3xl overflow-hidden auth-card">
+
+    <!-- 左侧品牌区 (2/5) -->
+    <div class="lg:col-span-2 bg-gradient-to-br from-agri-600 to-agri-800 p-8 lg:p-12 flex flex-col justify-between text-white relative">
+      <div>
+        <div class="flex items-center gap-3 mb-12">
+          <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-display font-bold text-xl leading-tight">智能惠农信贷</h1>
+            <p class="text-[10px] font-medium tracking-[0.2em] text-agri-100/80">SMART AGRICULTURAL CREDIT</p>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <h2 class="font-display text-3xl font-bold leading-tight">统一登录<br>一站式服务</h2>
+          <p class="text-agri-100/80 text-sm max-w-xs leading-relaxed">农户、银行工作人员、系统管理员均可从此入口登录，安全便捷。</p>
+        </div>
+        <div class="mt-10 grid grid-cols-2 gap-4">
+          <div class="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/5">
+            <div class="text-2xl font-display font-bold">30<span class="text-sm font-normal">min</span></div>
+            <div class="text-xs text-agri-100/70 mt-1">最快审批</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/5">
+            <div class="text-2xl font-display font-bold">3.85<span class="text-sm font-normal">%</span></div>
+            <div class="text-xs text-agri-100/70 mt-1">年化利率起</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/5">
+            <div class="text-2xl font-display font-bold">50<span class="text-sm font-normal">万</span></div>
+            <div class="text-xs text-agri-100/70 mt-1">纯信用额度</div>
+          </div>
+          <div class="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/5">
+            <div class="text-2xl font-display font-bold">100<span class="text-sm font-normal">%</span></div>
+            <div class="text-xs text-agri-100/70 mt-1">线上操作</div>
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 text-xs text-agri-100/50">
+        © 2026 智能惠农信贷 · 安全加密通道
+      </div>
+    </div>
+
+    <!-- 右侧表单区 (3/5) -->
+    <div class="lg:col-span-3 bg-white/90 p-8 lg:p-12 relative">
+
+      <!-- Toast -->
+      <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform -translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
+        <svg id="toastIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="toastText"></span>
+      </div>
+
+      <!-- 选择登录身份 -->
+      <div id="panelSelect" class="slide-panel visible-panel">
+        <h2 class="font-display font-bold text-2xl text-gray-900 mb-2">选择登录身份</h2>
+        <p class="text-sm text-gray-500 mb-8">请选择您的身份类型，进入对应的服务系统</p>
+
+        <div class="space-y-4">
+          <!-- 用户登录 -->
+          <div class="type-card user p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-agri-200" onclick="selectType('user')">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-agri-400 to-agri-600 flex items-center justify-center shadow-md">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">农户 / 企业用户</h3>
+                <p class="text-xs text-gray-500 mt-1">申请贷款、查看进度、管理个人信息</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- 银行登录 -->
+          <div class="type-card bank p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-fin-200" onclick="selectType('bank')">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-fin-400 to-fin-600 flex items-center justify-center shadow-md">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H4m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">银行工作人员</h3>
+                <p class="text-xs text-gray-500 mt-1">审批贷款、管理产品、查看需求</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+
+          <!-- 管理员登录 -->
+          <div class="type-card admin p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-purple-200" onclick="selectType('admin')">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-md">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="font-semibold text-gray-900">系统管理员</h3>
+                <p class="text-xs text-gray-500 mt-1">信用积分管理、数据监测、系统配置</p>
+              </div>
+              <svg class="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+          <p class="text-xs text-gray-400">还没有账号？<a href="#" onclick="goRegister()" class="text-agri-600 font-medium hover:underline ml-1">立即注册</a></p>
+        </div>
+      </div>
+
+      <!-- === 登录面板 === -->
+      <div id="panelLogin" class="slide-panel hidden-panel">
+        <div class="flex items-center gap-3 mb-6">
+          <button onclick="backToSelect()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <div>
+            <h2 class="font-display font-bold text-xl text-gray-900" id="loginTitle">用户登录</h2>
+            <p class="text-xs text-gray-500" id="loginSubtitle">请输入您的账号密码</p>
+          </div>
+        </div>
+
+        <div id="loginError" class="hidden mb-5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="loginErrorText"></span>
+        </div>
+
+        <form id="loginForm" class="space-y-6" novalidate>
+          <div>
+            <label for="loginUsername" class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <input type="text" id="loginUsername" placeholder="请输入用户名"
+                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+          </div>
+          <div>
+            <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1.5">密码</label>
+            <div class="relative">
+              <input type="password" id="loginPassword" placeholder="请输入密码"
+                     class="w-full px-4 py-3 pr-12 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+              <button type="button" id="toggleLoginPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <svg id="loginEyeOff" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243"/></svg>
+                <svg id="loginEyeOn" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div id="rememberRow" class="flex items-center gap-2 text-sm">
+            <input type="checkbox" id="remember" class="w-4 h-4 rounded border-gray-300 text-agri-600 focus:ring-agri-400">
+            <label for="remember" class="text-gray-500">记住我</label>
+          </div>
+          <button type="submit" id="loginBtn" class="w-full py-3.5 bg-gradient-to-r from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800 text-white font-semibold rounded-xl shadow-lg shadow-agri-200 transition-all text-sm flex items-center justify-center gap-2">
+            <span id="loginBtnText">登录</span>
+            <svg id="loginSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+          </button>
+          <div id="loginTips" class="text-center text-xs text-gray-400 mt-4"></div>
+        </form>
+      </div>
+
+      <!-- === 注册面板 === -->
+      <div id="panelRegister" class="slide-panel hidden-panel">
+        <div class="flex items-center gap-3 mb-6">
+          <button onclick="backToSelect()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+          <div>
+            <h2 class="font-display font-bold text-xl text-gray-900">用户注册</h2>
+            <p class="text-xs text-gray-500">创建农户/企业账号</p>
+          </div>
+        </div>
+
+        <div id="registerError" class="hidden mb-5 px-4 py-3 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 flex items-center gap-2">
+          <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="registerErrorText"></span>
+        </div>
+
+        <form id="registerForm" class="space-y-5" novalidate>
+          <div>
+            <label for="regUsername" class="block text-sm font-medium text-gray-700 mb-1.5">用户名</label>
+            <input type="text" id="regUsername" placeholder="4-20位字符"
+                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+          </div>
+          <div>
+            <label for="regPassword" class="block text-sm font-medium text-gray-700 mb-1.5">设置密码</label>
+            <div class="relative">
+              <input type="password" id="regPassword" placeholder="6-20位字符"
+                     class="w-full px-4 py-3 pr-12 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+              <button type="button" id="toggleRegPwd" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <svg id="regEyeOff" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243"/></svg>
+                <svg id="regEyeOn" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label for="regConfirmPwd" class="block text-sm font-medium text-gray-700 mb-1.5">确认密码</label>
+            <input type="password" id="regConfirmPwd" placeholder="再次输入密码"
+                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+            <p id="confirmHint" class="hidden text-xs text-red-500 mt-1 ml-1">两次输入的密码不一致</p>
+          </div>
+          <div>
+            <label for="regPhone" class="block text-sm font-medium text-gray-700 mb-1.5">手机号</label>
+            <input type="tel" id="regPhone" placeholder="11位手机号" maxlength="11"
+                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+          </div>
+          <div class="flex items-start gap-2 text-sm">
+            <input type="checkbox" id="agree" class="w-4 h-4 mt-0.5 rounded border-gray-300 text-agri-600 focus:ring-agri-400">
+            <label for="agree" class="text-gray-500">我已阅读并同意 <a href="#" class="text-agri-600 hover:underline">《用户服务协议》</a> 和 <a href="#" class="text-agri-600 hover:underline">《隐私政策》</a></label>
+          </div>
+          <button type="submit" id="registerBtn" class="w-full py-3.5 bg-gradient-to-r from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800 text-white font-semibold rounded-xl shadow-lg shadow-agri-200 transition-all text-sm flex items-center justify-center gap-2">
+            <span id="registerBtnText">注册</span>
+            <svg id="registerSpinner" class="hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var currentType = 'user';
+
+    // 数据存取
+    function getUsers() { try { return JSON.parse(localStorage.getItem('agriCreditUsers')) || []; } catch(e) { return []; } }
+    function saveUsers(u) { localStorage.setItem('agriCreditUsers', JSON.stringify(u)); }
+    function getBankUsers() {
+      try {
+        var b = JSON.parse(localStorage.getItem('agriBankUsers'));
+        if (!b || b.length === 0) {
+          b = [
+            { id: 1, username: 'admin', password: 'admin123', role: '审批员', limit: 100, status: 'active' },
+            { id: 2, username: 'approver', password: 'approver123', role: '审批员', limit: 50, status: 'active' },
+            { id: 3, username: 'manager', password: 'manager123', role: '产品经理', limit: 30, status: 'active' }
+          ];
+          localStorage.setItem('agriBankUsers', JSON.stringify(b));
+        }
+        return b;
+      } catch(e) {
+        return [{ id: 1, username: 'admin', password: 'admin123', role: '审批员', limit: 100, status: 'active' }];
+      }
+    }
+
+    function showToast(msg, type) {
+      var t = document.getElementById('toast'), tx = document.getElementById('toastText'), ic = document.getElementById('toastIcon');
+      tx.textContent = msg;
+      t.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform translate-y-0 opacity-100 transition-all duration-300 flex items-center gap-2 ' + (type==='success'?'bg-agri-600':'bg-red-500');
+      ic.innerHTML = type==='success'?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>':'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+      setTimeout(function(){t.style.transform='translateY(-80px)';t.style.opacity='0';},2800);
+    }
+
+    function switchPanel(panel) {
+      var panels = ['Select', 'Login', 'Register'];
+      panels.forEach(function(p) {
+        var el = document.getElementById('panel' + p);
+        if (p === panel) {
+          el.classList.remove('hidden-panel');
+          el.classList.add('visible-panel');
+        } else {
+          el.classList.add('hidden-panel');
+          el.classList.remove('visible-panel');
+        }
+      });
+      document.getElementById('loginError').classList.add('hidden');
+      document.getElementById('registerError').classList.add('hidden');
+    }
+
+    function selectType(type) {
+      currentType = type;
+      var config = {
+        user: { title: '用户登录', subtitle: '农户/企业用户登录', btnClass: 'from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800', tips: '默认账号：admin / 123456' },
+        bank: { title: '银行工作人员登录', subtitle: '请输入银行系统账号', btnClass: 'from-fin-600 to-fin-700 hover:from-fin-700 hover:to-fin-800', tips: '默认账号：admin / admin123' },
+        admin: { title: '系统管理员登录', subtitle: '请输入管理员账号', btnClass: 'from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800', tips: '默认账号：system / system123' }
+      };
+      var c = config[type];
+      document.getElementById('loginTitle').textContent = c.title;
+      document.getElementById('loginSubtitle').textContent = c.subtitle;
+      document.getElementById('loginBtn').className = 'w-full py-3.5 bg-gradient-to-r ' + c.btnClass + ' text-white font-semibold rounded-xl shadow-lg transition-all text-sm flex items-center justify-center gap-2';
+      document.getElementById('loginTips').textContent = c.tips;
+      document.getElementById('loginBtnText').textContent = '登录';
+
+      // 管理员隐藏记住我
+      document.getElementById('rememberRow').style.display = type === 'admin' ? 'none' : 'flex';
+
+      switchPanel('Login');
+    }
+
+    function backToSelect() {
+      switchPanel('Select');
+      document.getElementById('loginUsername').value = '';
+      document.getElementById('loginPassword').value = '';
+    }
+
+    function goRegister() {
+      currentType = 'user';
+      switchPanel('Register');
+    }
+
+    // 密码可见性
+    (function(){
+      var b=document.getElementById('toggleLoginPwd'), p=document.getElementById('loginPassword'),
+          off=document.getElementById('loginEyeOff'), on=document.getElementById('loginEyeOn');
+      b.onclick=function(){
+        var is=p.type==='password';p.type=is?'text':'password';
+        is?(off.classList.add('hidden'),on.classList.remove('hidden')):(off.classList.remove('hidden'),on.classList.add('hidden'));
+      };
+    })();
+    (function(){
+      var b=document.getElementById('toggleRegPwd'), p=document.getElementById('regPassword'),
+          off=document.getElementById('regEyeOff'), on=document.getElementById('regEyeOn');
+      b.onclick=function(){
+        var is=p.type==='password';p.type=is?'text':'password';
+        is?(off.classList.add('hidden'),on.classList.remove('hidden')):(off.classList.remove('hidden'),on.classList.add('hidden'));
+      };
+    })();
+
+    // 确认密码校验
+    var rcp=document.getElementById('regConfirmPwd'), ch=document.getElementById('confirmHint'), rpwd=document.getElementById('regPassword');
+    rcp.oninput=function(){
+      if(this.value.length>0&&this.value!==rpwd.value){ch.classList.remove('hidden');this.classList.add('border-red-300');}
+      else if(this.value.length>0&&this.value===rpwd.value){ch.classList.add('hidden');this.classList.remove('border-red-300');this.classList.add('border-green-400');}
+      else{ch.classList.add('hidden');this.classList.remove('border-red-300','border-green-400');}
+    };
+    rpwd.oninput=function(){
+      if(rcp.value.length>0&&this.value!==rcp.value){ch.classList.remove('hidden');rcp.classList.add('border-red-300');}
+      else if(rcp.value.length>0&&this.value===rcp.value){ch.classList.add('hidden');rcp.classList.remove('border-red-300');rcp.classList.add('border-green-400');}
+    };
+    document.getElementById('regPhone').oninput=function(){this.value=this.value.replace(/\D/g,'').slice(0,11);};
+
+    // 登录提交
+    document.getElementById('loginForm').onsubmit=function(e){
+      e.preventDefault();
+      var err=document.getElementById('loginError'), et=document.getElementById('loginErrorText');
+      err.classList.add('hidden');
+      var u=document.getElementById('loginUsername').value.trim(), p=document.getElementById('loginPassword').value.trim();
+      if(!u){et.textContent='请输入用户名';err.classList.remove('hidden');err.classList.add('flex');return;}
+      if(!p){et.textContent='请输入密码';err.classList.remove('hidden');err.classList.add('flex');return;}
+
+      var btn=document.getElementById('loginBtn'), bt=document.getElementById('loginBtnText'), sp=document.getElementById('loginSpinner');
+      btn.disabled=true;bt.textContent='登录中...';sp.classList.remove('hidden');
+
+      setTimeout(function(){
+        var success = false, redirectUrl = '';
+
+        if (currentType === 'user') {
+          var users = getUsers();
+          var user = users.find(function(x){return x.username===u&&x.password===p;});
+          if (user) {
+            success = true;
+            redirectUrl = 'main.html';
+            var storage = document.getElementById('remember').checked ? localStorage : sessionStorage;
+            storage.setItem('agriCreditLoggedInUser', JSON.stringify({username:user.username, phone:user.phone||''}));
+          }
+        } else if (currentType === 'bank') {
+          var bankUsers = getBankUsers();
+          var bankUser = bankUsers.find(function(x){return x.username===u&&x.password===p;});
+          if (bankUser) {
+            success = true;
+            redirectUrl = 'bank.html';
+            sessionStorage.setItem('agriAdminLoggedIn', 'true');
+          }
+        } else if (currentType === 'admin') {
+          if (u === 'system' && p === 'system123') {
+            success = true;
+            redirectUrl = 'admin.html';
+            sessionStorage.setItem('agriSystemAdminLoggedIn', 'true');
+          }
+        }
+
+        if (success) {
+          showToast('登录成功，正在跳转...', 'success');
+          setTimeout(function(){window.location.href=redirectUrl;},1200);
+        } else {
+          et.textContent='用户名或密码错误，请重试';
+          err.classList.remove('hidden');err.classList.add('flex');
+          btn.disabled=false;bt.textContent='登录';sp.classList.add('hidden');
+          document.getElementById('loginPassword').value='';
+          document.getElementById('loginPassword').focus();
+        }
+      }, 1000);
+    };
+
+    // 注册提交
+    document.getElementById('registerForm').onsubmit=function(e){
+      e.preventDefault();
+      var re=document.getElementById('registerError'), ret=document.getElementById('registerErrorText');re.classList.add('hidden');
+      var un=document.getElementById('regUsername').value.trim(), pw=rpwd.value.trim(), cp=rcp.value.trim(),
+          ph=document.getElementById('regPhone').value.trim(), ag=document.getElementById('agree').checked;
+
+      if(!un){ret.textContent='请输入用户名';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(un.length<4||un.length>20){ret.textContent='用户名长度应为4-20个字符';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!/^[\u4e00-\u9fa5a-zA-Z0-9_]+$/.test(un)){ret.textContent='用户名只能包含中文、英文、数字和下划线';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(getUsers().some(function(x){return x.username===un;})){ret.textContent='该用户名已被注册';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!pw){ret.textContent='请设置密码';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(pw.length<6||pw.length>20){ret.textContent='密码长度应为6-20个字符';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!cp){ret.textContent='请再次输入密码';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(pw!==cp){ret.textContent='两次输入的密码不一致';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!ph){ret.textContent='请输入手机号';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!/^1[3-9]\d{9}$/.test(ph)){ret.textContent='请输入有效的11位手机号码';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(getUsers().some(function(x){return x.phone===ph;})){ret.textContent='该手机号已被注册';re.classList.remove('hidden');re.classList.add('flex');return;}
+      if(!ag){ret.textContent='请先阅读并同意用户服务协议和隐私政策';re.classList.remove('hidden');re.classList.add('flex');return;}
+
+      var rb=document.getElementById('registerBtn'),rbt=document.getElementById('registerBtnText'),rs=document.getElementById('registerSpinner');
+      rb.disabled=true;rbt.textContent='注册中...';rs.classList.remove('hidden');
+      setTimeout(function(){
+        var users=getUsers();users.push({username:un,password:pw,phone:ph,registeredAt:new Date().toISOString()});saveUsers(users);
+        showToast('注册成功！即将跳转登录...', 'success');
+        document.getElementById('registerForm').reset();ch.classList.add('hidden');
+        rb.disabled=false;rbt.textContent='注册';rs.classList.add('hidden');
+        setTimeout(function(){selectType('user');},1500);
+      },1000);
+    };
+
+    // 输入时清空错误
+    document.querySelectorAll('#registerForm input, #loginForm input').forEach(function(inp){
+      inp.addEventListener('input',function(){
+        document.getElementById('loginError').classList.add('hidden');
+        document.getElementById('registerError').classList.add('hidden');
+      });
+    });
+
+    // 回车提交
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&document.activeElement&&document.activeElement.tagName==='INPUT'){
+        e.preventDefault();
+        var sel=document.getElementById('panelSelect'), log=document.getElementById('panelLogin');
+        if(!sel.classList.contains('hidden-panel')) return;
+        if(!log.classList.contains('hidden-panel')){document.getElementById('loginForm').dispatchEvent(new Event('submit'));}
+        else{document.getElementById('registerForm').dispatchEvent(new Event('submit'));}
+      }
+    });
+  </script>
+</body>
+</html>

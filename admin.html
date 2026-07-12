@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员中心 - 智能惠农信贷系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        display: ['"Outfit"', '"Noto Sans SC"', 'sans-serif'],
+                    },
+                    colors: {
+                        agri: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        fin: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        purple: { 50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 300: '#d8b4fe', 400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 700: '#7c3aed', 800: '#6b21a8', 900: '#581c87' },
+                        earth: { 50: '#faf8f5', 100: '#f3efe8', 200: '#e8e0d4', 300: '#d4c8b4', 400: '#b8a68a', 500: '#a08e70', 600: '#8a7a60', 700: '#736654', 800: '#5e5448', 900: '#4a4238' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+        .sidebar-item { transition: all 0.25s ease; }
+        .sidebar-item.active { background: linear-gradient(to right, #7c3aed, #581c87); color: white; }
+        .sidebar-item:not(.active):hover { background: #faf5ff; color: #7c3aed; }
+        .status-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
+        .input-field:focus { box-shadow: 0 0 0 3px rgba(168,85,247,0.15); border-color: #a855f7; }
+        .credit-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+        .credit-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        .config-card { transition: all 0.3s ease; }
+        .config-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.12); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInUp { animation: fadeInUp 0.4s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+    <!-- 未登录提示 -->
+    <div id="notLoggedIn" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-purple-800">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full mx-4 text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-purple-50 flex items-center justify-center">
+                <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+            </div>
+            <h2 class="font-display font-bold text-2xl text-gray-900 mb-3">管理员中心</h2>
+            <p class="text-sm text-gray-500 mb-6">请前往统一登录页面，选择"系统管理员"身份登录</p>
+            <a href="auth.html" class="inline-block px-8 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:from-purple-700 hover:to-purple-800 transition-all text-sm">前往登录</a>
+            <a href="main.html" class="inline-block mt-4 text-xs text-purple-600 hover:underline">返回首页</a>
+        </div>
+    </div>
+
+    <!-- 管理后台主界面 -->
+    <div id="adminPanel" class="hidden min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+            <div class="flex items-center justify-between px-6 h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-md">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-base text-gray-900">管理员中心</h1>
+                        <p class="text-[10px] text-purple-600 font-medium">SYSTEM ADMIN CENTER</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-semibold text-sm" id="adminAvatar">S</div>
+                        <span id="adminName">系统管理员</span>
+                    </div>
+                    <button onclick="adminLogout()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex">
+            <!-- 左侧菜单 -->
+            <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] p-4 sticky top-16">
+                <nav class="space-y-2">
+                    <button onclick="switchModule('monitor')" id="navMonitor" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        系统监测
+                    </button>
+                    <button onclick="switchModule('credit')" id="navCredit" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.97 2.963a1 1 0 00-.364 1.118l1.519 4.674c.3.922-.755 1.688-1.538 1.118l-3.97-2.963a1 1 0 00-1.176 0l-3.97 2.963c-.783.57-1.838-.197-1.538-1.118l1.519-4.674a1 1 0 00-.364-1.118L2.49 9.101c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"/></svg>
+                        信用积分管理
+                    </button>
+                    <button onclick="switchModule('products')" id="navProducts" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        贷款产品管理
+                    </button>
+                    <button onclick="switchModule('bankusers')" id="navBankusers" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        银行用户管理
+                    </button>
+                    <button onclick="switchModule('permissions')" id="navPermissions" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        权限管理
+                    </button>
+                    <button onclick="switchModule('logs')" id="navLogs" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        操作日志
+                    </button>
+                    <button onclick="switchModule('reports')" id="navReports" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        报表导出
+                    </button>
+                    <button onclick="switchModule('announcements')" id="navAnnouncements" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                        公告管理
+                    </button>
+                    <button onclick="switchModule('config')" id="navConfig" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        系统配置
+                    </button>
+                    <button onclick="switchModule('analysis')" id="navAnalysis" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
+                        数据分析
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- 右侧内容区 -->
+            <main class="flex-1 p-6">
+                
+                <!-- ===== 系统监测 ===== -->
+                <section id="moduleMonitor" class="animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">系统监测</h2>
+                    
+                    <!-- 统计卡片 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">系统用户数</span>
+                                <span class="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-gray-900" id="statUsers">0</div>
+                            <div class="text-xs text-gray-400 mt-1">注册农户总数</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">平均信用积分</span>
+                                <span class="w-8 h-8 rounded-lg bg-agri-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-agri-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.97 2.963a1 1 0 00-.364 1.118l1.519 4.674c.3.922-.755 1.688-1.538 1.118l-3.97-2.963a1 1 0 00-1.176 0l-3.97 2.963c-.783.57-1.838-.197-1.538-1.118l1.519-4.674a1 1 0 00-.364-1.118L2.49 9.101c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-agri-600" id="statAvgCredit">0</div>
+                            <div class="text-xs text-gray-400 mt-1">平台平均分</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">贷款产品数</span>
+                                <span class="w-8 h-8 rounded-lg bg-fin-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-fin-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-fin-600" id="statProducts">4</div>
+                            <div class="text-xs text-gray-400 mt-1">在架产品</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">银行用户数</span>
+                                <span class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H4m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-amber-600" id="statBankUsers">3</div>
+                            <div class="text-xs text-gray-400 mt-1">银行员工账号</div>
+                        </div>
+                    </div>
+
+                    <!-- 系统健康状态 -->
+                    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">系统健康状态</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">API响应时间</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-agri-500"></span>
+                                        <span class="text-sm font-medium text-agri-600">正常 (45ms)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">数据库连接</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-agri-500"></span>
+                                        <span class="text-sm font-medium text-agri-600">正常</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">存储空间</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                        <span class="text-sm font-medium text-amber-600">67% 已用</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">CDN节点</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-agri-500"></span>
+                                        <span class="text-sm font-medium text-agri-600">全部在线</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">今日活跃数据</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-purple-50">
+                                    <span class="text-sm text-gray-600">今日登录用户</span>
+                                    <span class="font-display font-bold text-purple-600" id="todayActive">0</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-fin-50">
+                                    <span class="text-sm text-gray-600">今日贷款申请</span>
+                                    <span class="font-display font-bold text-fin-600" id="todayApps">0</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-agri-50">
+                                    <span class="text-sm text-gray-600">今日放款金额</span>
+                                    <span class="font-display font-bold text-agri-600" id="todayPaid">0万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近系统活动 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100">
+                            <h3 class="font-semibold text-gray-900">最近系统活动</h3>
+                        </div>
+                        <div id="activityList" class="divide-y divide-gray-50"></div>
+                        <div id="activityEmpty" class="py-12 text-center text-sm text-gray-400">暂无活动记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 信用积分管理 ===== -->
+                <section id="moduleCredit" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <h2 class="font-display font-bold text-xl text-gray-900">农户信用积分管理</h2>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="creditSearch" placeholder="搜索用户名" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none input-field w-48">
+                            <button onclick="searchCredit()" class="px-4 py-2 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-sm font-medium hover:bg-purple-100 transition-all">搜索</button>
+                        </div>
+                    </div>
+
+                    <!-- 信用等级规则 -->
+                    <div class="bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200 p-5 mb-6">
+                        <h3 class="font-semibold text-purple-900 mb-3">信用等级规则</h3>
+                        <div class="grid grid-cols-5 gap-3 text-center">
+                            <div class="bg-white rounded-lg p-3">
+                                <div class="text-lg font-bold text-agri-600">≥700</div>
+                                <div class="text-xs text-gray-500 mt-1">优秀</div>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <div class="text-lg font-bold text-fin-600">600-699</div>
+                                <div class="text-xs text-gray-500 mt-1">良好</div>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <div class="text-lg font-bold text-amber-600">500-599</div>
+                                <div class="text-xs text-gray-500 mt-1">中等</div>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <div class="text-lg font-bold text-gray-600">400-499</div>
+                                <div class="text-xs text-gray-500 mt-1">一般</div>
+                            </div>
+                            <div class="bg-white rounded-lg p-3">
+                                <div class="text-lg font-bold text-red-600">&lt;400</div>
+                                <div class="text-xs text-gray-500 mt-1">较差</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">用户名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">真实姓名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">信用积分</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">信用等级</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">最近更新</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="creditList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="creditEmpty" class="py-12 text-center text-sm text-gray-400">暂无用户数据</div>
+                    </div>
+                </section>
+
+                <!-- ===== 贷款产品管理 ===== -->
+                <section id="moduleProducts" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">贷款产品管理</h2>
+                        <button onclick="openProductModal()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-lg shadow hover:from-purple-700 hover:to-purple-800 transition-all inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            新增产品
+                        </button>
+                    </div>
+
+                    <div id="productList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+                </section>
+
+                <!-- ===== 银行用户管理 ===== -->
+                <section id="moduleBankusers" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">银行用户管理</h2>
+                        <button onclick="openBankUserModal()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-lg shadow hover:from-purple-700 hover:to-purple-800 transition-all inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            新增银行用户
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">用户名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">角色</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">审批权限</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">创建时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bankUserList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="bankUserEmpty" class="py-12 text-center text-sm text-gray-400">暂无银行用户</div>
+                    </div>
+                </section>
+
+                <!-- ===== 权限管理 ===== -->
+                <section id="modulePermissions" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">角色权限管理</h2>
+
+                    <div class="grid lg:grid-cols-3 gap-6">
+                        <!-- 审批员权限 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 bg-gradient-to-r from-fin-500 to-fin-600 text-white">
+                                <h3 class="font-semibold">审批员</h3>
+                                <p class="text-xs opacity-80 mt-1">负责贷款审批工作</p>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看贷款申请</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">审批贷款申请</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">确认放款</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看农户信息</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">管理产品</span>
+                                    <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">系统配置</span>
+                                    <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <button onclick="showToast('权限已保存','success')" class="w-full mt-4 py-2 bg-fin-50 text-fin-700 font-medium text-sm rounded-lg border border-fin-200 hover:bg-fin-100 transition-all">保存权限</button>
+                            </div>
+                        </div>
+
+                        <!-- 产品经理权限 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 bg-gradient-to-r from-agri-500 to-agri-600 text-white">
+                                <h3 class="font-semibold">产品经理</h3>
+                                <p class="text-xs opacity-80 mt-1">负责产品管理工作</p>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看贷款申请</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">审批贷款申请</span>
+                                    <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">管理产品</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看数据分析</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">发布公告</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">系统配置</span>
+                                    <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <button onclick="showToast('权限已保存','success')" class="w-full mt-4 py-2 bg-agri-50 text-agri-700 font-medium text-sm rounded-lg border border-agri-200 hover:bg-agri-100 transition-all">保存权限</button>
+                            </div>
+                        </div>
+
+                        <!-- 风控专员权限 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 bg-gradient-to-r from-warn-500 to-warn-600 text-white">
+                                <h3 class="font-semibold">风控专员</h3>
+                                <p class="text-xs opacity-80 mt-1">负责风险管理控制</p>
+                            </div>
+                            <div class="p-6 space-y-3">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看贷款申请</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看逾期预警</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">调整信用积分</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">查看数据分析</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">导出报表</span>
+                                    <input type="checkbox" checked class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">系统配置</span>
+                                    <input type="checkbox" class="w-4 h-4 text-purple-600 rounded">
+                                </div>
+                                <button onclick="showToast('权限已保存','success')" class="w-full mt-4 py-2 bg-warn-50 text-warn-700 font-medium text-sm rounded-lg border border-warn-200 hover:bg-warn-100 transition-all">保存权限</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 操作日志 ===== -->
+                <section id="moduleLogs" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <h2 class="font-display font-bold text-xl text-gray-900">系统操作日志</h2>
+                        <div class="flex items-center gap-3">
+                            <select id="logTypeFilter" onchange="filterLogs()" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none input-field">
+                                <option value="all">全部类型</option>
+                                <option value="登录">登录操作</option>
+                                <option value="审批">审批操作</option>
+                                <option value="产品">产品管理</option>
+                                <option value="用户">用户管理</option>
+                                <option value="积分">积分调整</option>
+                            </select>
+                            <button onclick="exportLogs()" class="px-4 py-2 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-sm font-medium hover:bg-purple-100 transition-all inline-flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                导出日志
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作用户</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作内容</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">IP地址</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="logList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="logEmpty" class="py-12 text-center text-sm text-gray-400">暂无操作日志</div>
+                    </div>
+                </section>
+
+                <!-- ===== 报表导出 ===== -->
+                <section id="moduleReports" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">报表导出中心</h2>
+
+                    <div class="grid lg:grid-cols-3 gap-6 mb-6">
+                        <!-- 用户数据报表 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">用户数据报表</h3>
+                                    <p class="text-xs text-gray-500">用户注册与信用数据</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    用户基本信息
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    信用积分详情
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    注册时间统计
+                                </div>
+                            </div>
+                            <button onclick="exportReport('users')" class="w-full py-2.5 bg-purple-600 text-white font-medium text-sm rounded-lg hover:bg-purple-700 transition-all">导出报表</button>
+                        </div>
+
+                        <!-- 贷款数据报表 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-fin-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-fin-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">贷款数据报表</h3>
+                                    <p class="text-xs text-gray-500">贷款申请与放款统计</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    申请记录明细
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    放款金额统计
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    审批通过率分析
+                                </div>
+                            </div>
+                            <button onclick="exportReport('loans')" class="w-full py-2.5 bg-fin-600 text-white font-medium text-sm rounded-lg hover:bg-fin-700 transition-all">导出报表</button>
+                        </div>
+
+                        <!-- 产品统计报表 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-12 h-12 rounded-xl bg-agri-100 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-agri-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">产品统计报表</h3>
+                                    <p class="text-xs text-gray-500">各产品贷款分布</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    产品申请量统计
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    产品金额分布
+                                </div>
+                                <div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <svg class="w-4 h-4 text-agri-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    产品收益率分析
+                                </div>
+                            </div>
+                            <button onclick="exportReport('products')" class="w-full py-2.5 bg-agri-600 text-white font-medium text-sm rounded-lg hover:bg-agri-700 transition-all">导出报表</button>
+                        </div>
+                    </div>
+
+                    <!-- 导出记录 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100">
+                            <h3 class="font-semibold text-gray-900">最近导出记录</h3>
+                        </div>
+                        <div id="exportList" class="divide-y divide-gray-50"></div>
+                        <div id="exportEmpty" class="py-12 text-center text-sm text-gray-400">暂无导出记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 公告管理 ===== -->
+                <section id="moduleAnnouncements" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">系统公告管理</h2>
+                        <button onclick="openAnnouncementModal()" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-lg shadow hover:from-purple-700 hover:to-purple-800 transition-all inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            发布公告
+                        </button>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">公告标题</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">发布时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="announcementList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="announcementEmpty" class="py-12 text-center text-sm text-gray-400">暂无公告</div>
+                    </div>
+                </section>
+
+                <!-- ===== 系统配置 ===== -->
+                <section id="moduleConfig" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">系统配置</h2>
+                    
+                    <div class="grid lg:grid-cols-2 gap-6">
+                        <!-- 审批规则配置 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 config-card">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                审批规则配置
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">自动审批开关</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="autoApproval" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">信用分≥600自动通过</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" id="creditAutoPass" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="py-2">
+                                    <label class="text-sm text-gray-600 block mb-2">单笔审批上限(万元)</label>
+                                    <input type="number" value="50" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none input-field">
+                                </div>
+                                <button onclick="showToast('审批规则已保存','success')" class="w-full py-2 bg-purple-50 text-purple-700 font-medium text-sm rounded-lg border border-purple-200 hover:bg-purple-100 transition-all">保存配置</button>
+                            </div>
+                        </div>
+
+                        <!-- 通知设置 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 config-card">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                通知设置
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">新申请通知</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">审批结果通知</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">逾期预警通知</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer" checked>
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <div class="flex items-center justify-between py-2 border-b border-gray-100">
+                                    <span class="text-sm text-gray-600">系统公告通知</span>
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer">
+                                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+                                    </label>
+                                </div>
+                                <button onclick="showToast('通知设置已保存','success')" class="w-full py-2 bg-purple-50 text-purple-700 font-medium text-sm rounded-lg border border-purple-200 hover:bg-purple-100 transition-all">保存设置</button>
+                            </div>
+                        </div>
+
+                        <!-- 信用积分规则 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 config-card">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.97 2.963a1 1 0 00-.364 1.118l1.519 4.674c.3.922-.755 1.688-1.538 1.118l-3.97-2.963a1 1 0 00-1.176 0l-3.97 2.963c-.783.57-1.838-.197-1.538-1.118l1.519-4.674a1 1 0 00-.364-1.118L2.49 9.101c-.783-.57-.38-1.81.588-1.81h4.915a1 1 0 00.95-.69l1.519-4.674z"/></svg>
+                                积分规则配置
+                            </h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">实名认证</span>
+                                    <span class="text-sm font-semibold text-agri-600">+50分</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">按时还款(每次)</span>
+                                    <span class="text-sm font-semibold text-agri-600">+10分</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">逾期还款(每次)</span>
+                                    <span class="text-sm font-semibold text-red-600">-20分</span>
+                                </div>
+                                <div class="flex items-center justify-between py-2">
+                                    <span class="text-sm text-gray-600">经营年限(每年)</span>
+                                    <span class="text-sm font-semibold text-agri-600">+5分</span>
+                                </div>
+                                <button onclick="showToast('积分规则已保存','success')" class="w-full py-2 bg-purple-50 text-purple-700 font-medium text-sm rounded-lg border border-purple-200 hover:bg-purple-100 transition-all mt-2">保存规则</button>
+                            </div>
+                        </div>
+
+                        <!-- 系统参数 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 config-card">
+                            <h3 class="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                                系统参数
+                            </h3>
+                            <div class="space-y-4">
+                                <div class="py-2">
+                                    <label class="text-sm text-gray-600 block mb-2">会话超时时间(分钟)</label>
+                                    <input type="number" value="30" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none input-field">
+                                </div>
+                                <div class="py-2">
+                                    <label class="text-sm text-gray-600 block mb-2">最大申请金额(万元)</label>
+                                    <input type="number" value="100" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none input-field">
+                                </div>
+                                <div class="py-2">
+                                    <label class="text-sm text-gray-600 block mb-2">最长贷款期限(月)</label>
+                                    <input type="number" value="60" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none input-field">
+                                </div>
+                                <button onclick="showToast('系统参数已保存','success')" class="w-full py-2 bg-purple-50 text-purple-700 font-medium text-sm rounded-lg border border-purple-200 hover:bg-purple-100 transition-all">保存参数</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ===== 数据分析 ===== -->
+                <section id="moduleAnalysis" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">数据分析</h2>
+                    
+                    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 信用积分分布 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">农户信用积分分布</h3>
+                            <div id="creditDistribution" class="space-y-3"></div>
+                        </div>
+                        <!-- 用户增长趋势 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">用户增长趋势</h3>
+                            <div id="userGrowth" class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-16">本月新增</span>
+                                    <div class="credit-bar flex-1"><div class="credit-fill" style="width:75%;background:#a855f7"></div></div>
+                                    <span class="text-xs font-semibold text-gray-900">15人</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-16">上月新增</span>
+                                    <div class="credit-bar flex-1"><div class="credit-fill" style="width:60%;background:#a855f7"></div></div>
+                                    <span class="text-xs font-semibold text-gray-900">12人</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-16">总用户</span>
+                                    <div class="credit-bar flex-1"><div class="credit-fill" style="width:100%;background:#a855f7"></div></div>
+                                    <span class="text-xs font-semibold text-gray-900" id="totalUsers">0人</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 贷款数据统计 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">贷款数据统计</h3>
+                        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="p-4 rounded-xl bg-agri-50 border border-agri-100">
+                                <div class="text-xs text-agri-600 mb-1">总申请数</div>
+                                <div class="text-2xl font-display font-bold text-agri-700" id="totalApps">0</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-fin-50 border border-fin-100">
+                                <div class="text-xs text-fin-600 mb-1">审批通过率</div>
+                                <div class="text-2xl font-display font-bold text-fin-700" id="passRate">92%</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-purple-50 border border-purple-100">
+                                <div class="text-xs text-purple-600 mb-1">总放款额</div>
+                                <div class="text-2xl font-display font-bold text-purple-700"><span id="totalPaid">0</span>万</div>
+                            </div>
+                            <div class="p-4 rounded-xl bg-amber-50 border border-amber-100">
+                                <div class="text-xs text-amber-600 mb-1">平均贷款金额</div>
+                                <div class="text-2xl font-display font-bold text-amber-700"><span id="avgAmount">0</span>万</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 信用积分调整弹窗 -->
+    <div id="creditModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCreditModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900">调整信用积分</h3>
+                <button onclick="closeCreditModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="creditForm" class="p-6 space-y-5">
+                <input type="hidden" id="creditUsername">
+                <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
+                    <div><p class="text-xs text-gray-500">用户名</p><p class="font-semibold text-gray-900" id="creditModalUser">-</p></div>
+                    <div><p class="text-xs text-gray-500">当前积分</p><p class="font-semibold text-purple-600" id="creditModalCurrent">0</p></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">调整类型</label>
+                    <select id="creditType" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="add">增加积分</option>
+                        <option value="subtract">减少积分</option>
+                        <option value="set">直接设置</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">积分数值</label>
+                    <input type="number" id="creditValue" placeholder="输入积分值" min="0" max="1000" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">调整原因</label>
+                    <textarea id="creditReason" rows="2" placeholder="请填写调整原因" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow hover:from-purple-700 hover:to-purple-800 transition-all">确认调整</button>
+                    <button type="button" onclick="closeCreditModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 新增/编辑产品弹窗 -->
+    <div id="productModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeProductModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white rounded-t-2xl">
+                <h3 class="font-display font-bold text-lg text-gray-900" id="productModalTitle">新增贷款产品</h3>
+                <button onclick="closeProductModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="productForm" class="p-6 space-y-5">
+                <input type="hidden" id="productId">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">产品名称</label>
+                    <input type="text" id="productName" placeholder="如：惠农贷" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">额度下限(万元)</label>
+                        <input type="number" id="productMinAmount" placeholder="如：1" min="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">额度上限(万元)</label>
+                        <input type="number" id="productMaxAmount" placeholder="如：30" min="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">年化利率(%)</label>
+                        <input type="text" id="productRate" placeholder="如：3.85%起" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">期限范围(月)</label>
+                        <input type="text" id="productTerm" placeholder="如：1-36个月" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">产品描述</label>
+                    <textarea id="productDesc" rows="3" placeholder="产品特点说明" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">产品状态</label>
+                    <select id="productStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="active">上架</option>
+                        <option value="inactive">下架</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow hover:from-purple-700 hover:to-purple-800 transition-all">保存</button>
+                    <button type="button" onclick="closeProductModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 新增银行用户弹窗 -->
+    <div id="bankUserModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeBankUserModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900" id="bankUserModalTitle">新增银行用户</h3>
+                <button onclick="closeBankUserModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="bankUserForm" class="p-6 space-y-5">
+                <input type="hidden" id="bankUserId">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">用户名</label>
+                    <input type="text" id="bankUserName" placeholder="登录用户名" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">密码</label>
+                    <input type="password" id="bankUserPwd" placeholder="登录密码" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">角色类型</label>
+                    <select id="bankUserRole" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="审批员">审批员</option>
+                        <option value="产品经理">产品经理</option>
+                        <option value="风控专员">风控专员</option>
+                        <option value="客服">客服</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">审批权限额度(万元)</label>
+                    <input type="number" id="bankUserLimit" placeholder="如：50" min="0" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">状态</label>
+                    <select id="bankUserStatus" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="active">启用</option>
+                        <option value="inactive">禁用</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow hover:from-purple-700 hover:to-purple-800 transition-all">保存</button>
+                    <button type="button" onclick="closeBankUserModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 公告弹窗 -->
+    <div id="announcementModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeAnnouncementModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900">发布系统公告</h3>
+                <button onclick="closeAnnouncementModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="announcementForm" class="p-6 space-y-5">
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">公告标题</label>
+                    <input type="text" id="announcementTitle" placeholder="输入公告标题" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">公告类型</label>
+                    <select id="announcementType" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="系统通知">系统通知</option>
+                        <option value="政策公告">政策公告</option>
+                        <option value="产品更新">产品更新</option>
+                        <option value="维护通知">维护通知</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">公告内容</label>
+                    <textarea id="announcementContent" rows="5" placeholder="输入公告内容" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">状态</label>
+                    <select id="announcementStatus" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        <option value="published">立即发布</option>
+                        <option value="draft">保存草稿</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-semibold text-sm rounded-xl shadow hover:from-purple-700 hover:to-purple-800 transition-all">发布</button>
+                    <button type="button" onclick="closeAnnouncementModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform -translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
+        <svg id="toastIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="toastText"></span>
+    </div>
+
+    <script>
+        // ==================== 工具函数 ====================
+        function getUsers() { try { return JSON.parse(localStorage.getItem('agriCreditUsers')) || []; } catch(e) { return []; } }
+        function saveUsers(u) { localStorage.setItem('agriCreditUsers', JSON.stringify(u)); }
+        function getApplications() {
+            var all = {};
+            try { all = JSON.parse(localStorage.getItem('agriLoanApplications')) || {}; } catch(e) {}
+            return all;
+        }
+        function getProducts() {
+            try { return JSON.parse(localStorage.getItem('agriLoanProducts')) || getDefaultProducts(); } catch(e) { return getDefaultProducts(); }
+        }
+        function saveProducts(p) { localStorage.setItem('agriLoanProducts', JSON.stringify(p)); }
+        function getDefaultProducts() {
+            return [
+                { id: 1, name: '惠农贷', minAmount: 1, maxAmount: 30, rate: '3.85%起', term: '1-36个月', desc: '面向农户的综合信用贷款，无需抵押，纯信用授信', status: 'active', color: 'from-agri-400 to-agri-600' },
+                { id: 2, name: '农机贷', minAmount: 5, maxAmount: 100, rate: '4.35%起', term: '6-60个月', desc: '专项用于购置农业机械设备，支持分期还款', status: 'active', color: 'from-fin-400 to-fin-600' },
+                { id: 3, name: '种植贷', minAmount: 2, maxAmount: 50, rate: '3.65%起', term: '3-24个月', desc: '支持粮食、经济作物等种植生产的流动资金需求', status: 'active', color: 'from-amber-400 to-amber-600' },
+                { id: 4, name: '养殖贷', minAmount: 5, maxAmount: 80, rate: '4.15%起', term: '6-36个月', desc: '覆盖畜禽、水产等养殖产业的资金周转需求', status: 'active', color: 'from-rose-400 to-rose-600' }
+            ];
+        }
+        function getBankUsers() {
+            try { return JSON.parse(localStorage.getItem('agriBankUsers')) || getDefaultBankUsers(); } catch(e) { return getDefaultBankUsers(); }
+        }
+        function saveBankUsers(b) { localStorage.setItem('agriBankUsers', JSON.stringify(b)); }
+        function getDefaultBankUsers() {
+            return [
+                { id: 1, username: 'approver1', password: 'approver123', role: '审批员', limit: 50, status: 'active', createdAt: '2026-01-15' },
+                { id: 2, username: 'manager1', password: 'manager123', role: '产品经理', limit: 100, status: 'active', createdAt: '2026-02-20' },
+                { id: 3, username: 'risk1', password: 'risk123', role: '风控专员', limit: 30, status: 'active', createdAt: '2026-03-10' }
+            ];
+        }
+        function getCreditData(username) {
+            var users = getUsers();
+            var u = users.find(function(user) { return user.username === username; });
+            return u ? (u.creditScore || getDefaultCredit(username)) : getDefaultCredit(username);
+        }
+        function getDefaultCredit(username) {
+            var hash = 0;
+            for (var i = 0; i < username.length; i++) hash = ((hash << 5) - hash) + username.charCodeAt(i);
+            return 400 + Math.abs(hash % 400);
+        }
+        function saveCreditData(username, score, reason) {
+            var users = getUsers();
+            var idx = users.findIndex(function(u) { return u.username === username; });
+            if (idx >= 0) {
+                users[idx].creditScore = score;
+                users[idx].creditUpdatedAt = new Date().toISOString();
+                users[idx].creditReason = reason;
+                saveUsers(users);
+            }
+            addActivity('积分调整', username + ' 信用积分调整为 ' + score + '（' + reason + '）');
+        }
+        function getActivities() {
+            try { return JSON.parse(localStorage.getItem('agriSystemActivities')) || []; } catch(e) { return []; }
+        }
+        function addActivity(type, desc) {
+            var activities = getActivities();
+            activities.unshift({ type: type, desc: desc, time: new Date().toISOString() });
+            if (activities.length > 50) activities = activities.slice(0, 50);
+            localStorage.setItem('agriSystemActivities', JSON.stringify(activities));
+        }
+
+        function showToast(msg, type) {
+            var t = document.getElementById('toast'), tx = document.getElementById('toastText'), ic = document.getElementById('toastIcon');
+            tx.textContent = msg;
+            t.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform translate-y-0 opacity-100 transition-all duration-300 flex items-center gap-2 ' + (type==='success'?'bg-agri-600':type==='error'?'bg-red-500':'bg-purple-600');
+            ic.innerHTML = type==='success'?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>':'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+            setTimeout(function(){ t.style.transform='translateY(-80px)'; t.style.opacity='0'; }, 2800);
+        }
+
+        function formatDate(d) {
+            var date = new Date(d);
+            var pad = function(n) { return n < 10 ? '0' + n : n; };
+            return date.getFullYear() + '-' + pad(date.getMonth()+1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+
+        function getCreditLevel(score) {
+            if (score >= 700) return { text: '优秀', class: 'bg-agri-100 text-agri-700', color: '#22c55e' };
+            if (score >= 600) return { text: '良好', class: 'bg-fin-100 text-fin-700', color: '#3b82f6' };
+            if (score >= 500) return { text: '中等', class: 'bg-amber-100 text-amber-700', color: '#f59e0b' };
+            if (score >= 400) return { text: '一般', class: 'bg-gray-100 text-gray-700', color: '#6b7280' };
+            return { text: '较差', class: 'bg-red-100 text-red-700', color: '#ef4444' };
+        }
+
+        // ==================== 登录管理 ====================
+        function checkAdminLogin() {
+            var loggedIn = sessionStorage.getItem('agriSystemAdminLoggedIn');
+            if (loggedIn) {
+                document.getElementById('notLoggedIn').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                return true;
+            }
+            document.getElementById('notLoggedIn').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            return false;
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('agriSystemAdminLoggedIn');
+            showToast('已安全退出', 'success');
+            setTimeout(function() { window.location.href = 'auth.html'; }, 500);
+        }
+
+        // ==================== 模块切换 ====================
+        function switchModule(module) {
+            var modules = ['monitor', 'credit', 'products', 'bankusers', 'permissions', 'logs', 'reports', 'announcements', 'config', 'analysis'];
+            modules.forEach(function(m) {
+                document.getElementById('module' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('hidden');
+                document.getElementById('nav' + m.charAt(0).toUpperCase() + m.slice(1)).classList.remove('active');
+                document.getElementById('nav' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('text-gray-700');
+            });
+            document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1)).classList.remove('hidden');
+            document.getElementById('nav' + module.charAt(0).toUpperCase() + module.slice(1)).classList.add('active');
+            document.getElementById('nav' + module.charAt(0).toUpperCase() + module.slice(1)).classList.remove('text-gray-700');
+
+            var el = document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1));
+            el.classList.remove('animate-fadeInUp');
+            void el.offsetWidth;
+            el.classList.add('animate-fadeInUp');
+
+            if (module === 'credit') renderCredit();
+            if (module === 'products') renderProducts();
+            if (module === 'bankusers') renderBankUsers();
+            if (module === 'logs') renderLogs();
+            if (module === 'reports') renderReports();
+            if (module === 'announcements') renderAnnouncements();
+            if (module === 'analysis') renderAnalysis();
+        }
+
+        // ==================== 系统监测 ====================
+        function initDashboard() {
+            renderMonitor();
+            renderProducts();
+        }
+
+        function renderMonitor() {
+            var users = getUsers();
+            var products = getProducts();
+            var bankUsers = getBankUsers();
+            var apps = getApplications();
+
+            var totalCredit = 0;
+            users.forEach(function(u) { totalCredit += getCreditData(u.username); });
+            var avgCredit = users.length > 0 ? Math.round(totalCredit / users.length) : 0;
+
+            document.getElementById('statUsers').textContent = users.length;
+            document.getElementById('statAvgCredit').textContent = avgCredit;
+            document.getElementById('statProducts').textContent = products.filter(function(p) { return p.status === 'active'; }).length;
+            document.getElementById('statBankUsers').textContent = bankUsers.filter(function(b) { return b.status === 'active'; }).length;
+            document.getElementById('totalUsers').textContent = users.length + '人';
+
+            // 今日数据
+            var todayApps = 0, todayPaid = 0;
+            Object.keys(apps).forEach(function(u) {
+                apps[u].forEach(function(a) {
+                    var d = new Date(a.createdAt);
+                    if (d.toDateString() === new Date().toDateString()) todayApps++;
+                    if (a.status === 'paid') todayPaid += a.amount;
+                });
+            });
+            document.getElementById('todayActive').textContent = Math.floor(users.length * 0.3);
+            document.getElementById('todayApps').textContent = todayApps;
+            document.getElementById('todayPaid').textContent = todayPaid + '万';
+
+            // 活动列表
+            var activities = getActivities();
+            if (activities.length > 0) {
+                var actHtml = activities.slice(0, 8).map(function(a) {
+                    return '<div class="px-6 py-3 flex items-center gap-3">' +
+                        '<span class="px-2 py-0.5 text-xs rounded bg-purple-50 text-purple-700">' + a.type + '</span>' +
+                        '<span class="text-sm text-gray-700 flex-1">' + a.desc + '</span>' +
+                        '<span class="text-xs text-gray-400">' + formatDate(a.time) + '</span>' +
+                    '</div>';
+                }).join('');
+                document.getElementById('activityList').innerHTML = actHtml;
+                document.getElementById('activityEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('activityList').innerHTML = '';
+                document.getElementById('activityEmpty').classList.remove('hidden');
+            }
+        }
+
+        // ==================== 信用积分管理 =======
+        function renderCredit(searchTerm) {
+            var users = getUsers();
+            var filtered = searchTerm ? users.filter(function(u) { return u.username.indexOf(searchTerm) >= 0; }) : users;
+
+            var html = filtered.map(function(u) {
+                var score = getCreditData(u.username);
+                var level = getCreditLevel(score);
+                return '<tr class="hover:bg-gray-50">' +
+                    '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + u.username + '</td>' +
+                    '<td class="px-6 py-4 text-sm text-gray-600">' + (u.realName || '-') + '</td>' +
+                    '<td class="px-6 py-4">' +
+                        '<div class="flex items-center gap-2">' +
+                            '<span class="font-display font-bold text-lg" style="color:' + level.color + '">' + score + '</span>' +
+                            '<div class="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">' +
+                                '<div class="h-full rounded-full transition-all" style="width:' + Math.min(score/10, 100) + '%;background:' + level.color + '"></div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                    '<td class="px-6 py-4"><span class="status-badge ' + level.class + '">' + level.text + '</span></td>' +
+                    '<td class="px-6 py-4 text-xs text-gray-500">' + (u.creditUpdatedAt ? formatDate(u.creditUpdatedAt) : '-') + '</td>' +
+                    '<td class="px-6 py-4">' +
+                        '<button onclick="openCreditModal(\'' + u.username + '\')" class="px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-all">调整</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            if (filtered.length > 0) {
+                document.getElementById('creditList').innerHTML = html;
+                document.getElementById('creditEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('creditList').innerHTML = '';
+                document.getElementById('creditEmpty').classList.remove('hidden');
+            }
+        }
+
+        function searchCredit() {
+            var term = document.getElementById('creditSearch').value.trim();
+            renderCredit(term);
+        }
+
+        function openCreditModal(username) {
+            var users = getUsers();
+            var u = users.find(function(user) { return user.username === username; });
+            if (!u) return;
+            var score = getCreditData(username);
+
+            document.getElementById('creditUsername').value = username;
+            document.getElementById('creditModalUser').textContent = username;
+            document.getElementById('creditModalCurrent').textContent = score;
+            document.getElementById('creditType').value = 'add';
+            document.getElementById('creditValue').value = '';
+            document.getElementById('creditReason').value = '';
+            document.getElementById('creditModal').classList.remove('hidden');
+        }
+
+        function closeCreditModal() { document.getElementById('creditModal').classList.add('hidden'); }
+
+        document.getElementById('creditForm').onsubmit = function(e) {
+            e.preventDefault();
+            var username = document.getElementById('creditUsername').value;
+            var type = document.getElementById('creditType').value;
+            var value = parseInt(document.getElementById('creditValue').value) || 0;
+            var reason = document.getElementById('creditReason').value.trim();
+
+            if (!reason) { showToast('请填写调整原因', 'error'); return; }
+
+            var currentScore = getCreditData(username);
+            var newScore = 0;
+            if (type === 'add') newScore = Math.min(currentScore + value, 1000);
+            else if (type === 'subtract') newScore = Math.max(currentScore - value, 0);
+            else newScore = Math.min(Math.max(value, 0), 1000);
+
+            saveCreditData(username, newScore, reason);
+            closeCreditModal();
+            renderCredit();
+            renderMonitor();
+            showToast('积分已调整', 'success');
+        };
+
+        // ==================== 贷款产品管理 =======
+        function renderProducts() {
+            var products = getProducts();
+            var html = products.map(function(p) {
+                return '<div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">' +
+                    '<div class="flex items-start justify-between mb-4">' +
+                        '<div class="w-12 h-12 rounded-xl bg-gradient-to-br ' + p.color + ' flex items-center justify-center shadow-md">' +
+                            '<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>' +
+                        '</div>' +
+                        '<span class="px-2 py-1 text-xs rounded-lg ' + (p.status === 'active' ? 'bg-agri-100 text-agri-700' : 'bg-gray-100 text-gray-500') + '">' + (p.status === 'active' ? '上架' : '下架') + '</span>' +
+                    '</div>' +
+                    '<h3 class="font-display font-bold text-lg text-gray-900 mb-2">' + p.name + '</h3>' +
+                    '<p class="text-xs text-gray-500 mb-4 line-clamp-2">' + p.desc + '</p>' +
+                    '<div class="space-y-2 text-xs text-gray-600 mb-4">' +
+                        '<div class="flex justify-between"><span>额度范围</span><span class="font-semibold text-gray-900">' + p.minAmount + '-' + p.maxAmount + '万元</span></div>' +
+                        '<div class="flex justify-between"><span>年化利率</span><span class="font-semibold text-fin-600">' + p.rate + '</span></div>' +
+                        '<div class="flex justify-between"><span>贷款期限</span><span class="font-semibold text-gray-900">' + p.term + '</span></div>' +
+                    '</div>' +
+                    '<div class="flex gap-2">' +
+                        '<button onclick="editProduct(' + p.id + ')" class="flex-1 py-2 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-all">编辑</button>' +
+                        '<button onclick="toggleProductStatus(' + p.id + ')" class="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all">' + (p.status === 'active' ? '下架' : '上架') + '</button>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+            document.getElementById('productList').innerHTML = html || '<div class="col-span-full text-center py-12 text-sm text-gray-400">暂无产品</div>';
+        }
+
+        function openProductModal() {
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productModalTitle').textContent = '新增贷款产品';
+        }
+
+        function closeProductModal() { document.getElementById('productModal').classList.add('hidden'); }
+
+        function editProduct(id) {
+            var products = getProducts();
+            var p = products.find(function(item) { return item.id === id; });
+            if (!p) return;
+            document.getElementById('productModal').classList.remove('hidden');
+            document.getElementById('productModalTitle').textContent = '编辑贷款产品';
+            document.getElementById('productId').value = p.id;
+            document.getElementById('productName').value = p.name;
+            document.getElementById('productMinAmount').value = p.minAmount;
+            document.getElementById('productMaxAmount').value = p.maxAmount;
+            document.getElementById('productRate').value = p.rate;
+            document.getElementById('productTerm').value = p.term;
+            document.getElementById('productDesc').value = p.desc;
+            document.getElementById('productStatus').value = p.status;
+        }
+
+        function toggleProductStatus(id) {
+            var products = getProducts();
+            var idx = products.findIndex(function(p) { return p.id === id; });
+            if (idx >= 0) {
+                products[idx].status = products[idx].status === 'active' ? 'inactive' : 'active';
+                saveProducts(products);
+                renderProducts();
+                renderMonitor();
+                showToast('状态已更新', 'success');
+            }
+        }
+
+        document.getElementById('productForm').onsubmit = function(e) {
+            e.preventDefault();
+            var id = document.getElementById('productId').value;
+            var name = document.getElementById('productName').value.trim();
+            var minAmount = parseInt(document.getElementById('productMinAmount').value) || 0;
+            var maxAmount = parseInt(document.getElementById('productMaxAmount').value) || 0;
+            var rate = document.getElementById('productRate').value.trim();
+            var term = document.getElementById('productTerm').value.trim();
+            var desc = document.getElementById('productDesc').value.trim();
+            var status = document.getElementById('productStatus').value;
+
+            if (!name) { showToast('请输入产品名称', 'error'); return; }
+
+            var products = getProducts();
+            var colors = ['from-agri-400 to-agri-600', 'from-fin-400 to-fin-600', 'from-amber-400 to-amber-600', 'from-rose-400 to-rose-600', 'from-purple-400 to-purple-600'];
+
+            if (id) {
+                var idx = products.findIndex(function(p) { return p.id === parseInt(id); });
+                if (idx >= 0) {
+                    products[idx].name = name;
+                    products[idx].minAmount = minAmount;
+                    products[idx].maxAmount = maxAmount;
+                    products[idx].rate = rate;
+                    products[idx].term = term;
+                    products[idx].desc = desc;
+                    products[idx].status = status;
+                }
+                addActivity('产品修改', '修改产品：' + name);
+            } else {
+                var newId = Math.max.apply(null, products.map(function(p) { return p.id; })) + 1;
+                products.push({
+                    id: newId,
+                    name: name,
+                    minAmount: minAmount,
+                    maxAmount: maxAmount,
+                    rate: rate,
+                    term: term,
+                    desc: desc,
+                    status: status,
+                    color: colors[products.length % colors.length]
+                });
+                addActivity('新增产品', '新增产品：' + name);
+            }
+            saveProducts(products);
+            closeProductModal();
+            renderProducts();
+            renderMonitor();
+            showToast('保存成功', 'success');
+        };
+
+        // ==================== 银行用户管理 =======
+        function renderBankUsers() {
+            var bankUsers = getBankUsers();
+            var html = bankUsers.map(function(b) {
+                return '<tr class="hover:bg-gray-50">' +
+                    '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + b.username + '</td>' +
+                    '<td class="px-6 py-4"><span class="px-2 py-1 text-xs rounded-lg bg-purple-50 text-purple-700">' + b.role + '</span></td>' +
+                    '<td class="px-6 py-4 text-sm font-semibold text-gray-900">' + b.limit + '万元</td>' +
+                    '<td class="px-6 py-4"><span class="status-badge ' + (b.status === 'active' ? 'bg-agri-100 text-agri-700' : 'bg-gray-100 text-gray-600') + '">' + (b.status === 'active' ? '启用' : '禁用') + '</span></td>' +
+                    '<td class="px-6 py-4 text-xs text-gray-500">' + (b.createdAt || '-') + '</td>' +
+                    '<td class="px-6 py-4">' +
+                        '<button onclick="editBankUser(' + b.id + ')" class="px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-all">编辑</button>' +
+                        '<button onclick="toggleBankUserStatus(' + b.id + ')" class="ml-2 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-all">' + (b.status === 'active' ? '禁用' : '启用') + '</button>' +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+
+            if (bankUsers.length > 0) {
+                document.getElementById('bankUserList').innerHTML = html;
+                document.getElementById('bankUserEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('bankUserList').innerHTML = '';
+                document.getElementById('bankUserEmpty').classList.remove('hidden');
+            }
+        }
+
+        function openBankUserModal() {
+            document.getElementById('bankUserModal').classList.remove('hidden');
+            document.getElementById('bankUserForm').reset();
+            document.getElementById('bankUserId').value = '';
+            document.getElementById('bankUserModalTitle').textContent = '新增银行用户';
+        }
+
+        function closeBankUserModal() { document.getElementById('bankUserModal').classList.add('hidden'); }
+
+        function editBankUser(id) {
+            var bankUsers = getBankUsers();
+            var b = bankUsers.find(function(item) { return item.id === id; });
+            if (!b) return;
+            document.getElementById('bankUserModal').classList.remove('hidden');
+            document.getElementById('bankUserModalTitle').textContent = '编辑银行用户';
+            document.getElementById('bankUserId').value = b.id;
+            document.getElementById('bankUserName').value = b.username;
+            document.getElementById('bankUserPwd').value = b.password;
+            document.getElementById('bankUserRole').value = b.role;
+            document.getElementById('bankUserLimit').value = b.limit;
+            document.getElementById('bankUserStatus').value = b.status;
+        }
+
+        function toggleBankUserStatus(id) {
+            var bankUsers = getBankUsers();
+            var idx = bankUsers.findIndex(function(b) { return b.id === id; });
+            if (idx >= 0) {
+                bankUsers[idx].status = bankUsers[idx].status === 'active' ? 'inactive' : 'active';
+                saveBankUsers(bankUsers);
+                renderBankUsers();
+                renderMonitor();
+                showToast('状态已更新', 'success');
+            }
+        }
+
+        document.getElementById('bankUserForm').onsubmit = function(e) {
+            e.preventDefault();
+            var id = document.getElementById('bankUserId').value;
+            var username = document.getElementById('bankUserName').value.trim();
+            var password = document.getElementById('bankUserPwd').value.trim();
+            var role = document.getElementById('bankUserRole').value;
+            var limit = parseInt(document.getElementById('bankUserLimit').value) || 0;
+            var status = document.getElementById('bankUserStatus').value;
+
+            if (!username) { showToast('请输入用户名', 'error'); return; }
+            if (!password) { showToast('请输入密码', 'error'); return; }
+
+            var bankUsers = getBankUsers();
+
+            if (id) {
+                var idx = bankUsers.findIndex(function(b) { return b.id === parseInt(id); });
+                if (idx >= 0) {
+                    bankUsers[idx].username = username;
+                    bankUsers[idx].password = password;
+                    bankUsers[idx].role = role;
+                    bankUsers[idx].limit = limit;
+                    bankUsers[idx].status = status;
+                }
+                addActivity('用户修改', '修改银行用户：' + username);
+            } else {
+                var newId = Math.max.apply(null, bankUsers.map(function(b) { return b.id; })) + 1;
+                bankUsers.push({
+                    id: newId,
+                    username: username,
+                    password: password,
+                    role: role,
+                    limit: limit,
+                    status: status,
+                    createdAt: new Date().toISOString().substring(0, 10)
+                });
+                addActivity('新增用户', '新增银行用户：' + username);
+            }
+            saveBankUsers(bankUsers);
+            closeBankUserModal();
+            renderBankUsers();
+            renderMonitor();
+            showToast('保存成功', 'success');
+        };
+
+        // ==================== 数据分析 =======
+        function renderAnalysis() {
+            var users = getUsers();
+            var apps = getApplications();
+
+            // 信用积分分布
+            var distribution = { excellent: 0, good: 0, medium: 0, normal: 0, poor: 0 };
+            users.forEach(function(u) {
+                var score = getCreditData(u.username);
+                if (score >= 700) distribution.excellent++;
+                else if (score >= 600) distribution.good++;
+                else if (score >= 500) distribution.medium++;
+                else if (score >= 400) distribution.normal++;
+                else distribution.poor++;
+            });
+
+            var maxDist = Math.max(distribution.excellent, distribution.good, distribution.medium, distribution.normal, distribution.poor, 1);
+            var distHtml = [
+                { label: '优秀(≥700)', count: distribution.excellent, color: '#22c55e' },
+                { label: '良好(600-699)', count: distribution.good, color: '#3b82f6' },
+                { label: '中等(500-599)', count: distribution.medium, color: '#f59e0b' },
+                { label: '一般(400-499)', count: distribution.normal, color: '#6b7280' },
+                { label: '较差(<400)', count: distribution.poor, color: '#ef4444' }
+            ].map(function(d) {
+                var width = Math.round((d.count / maxDist) * 100);
+                return '<div class="flex items-center gap-3">' +
+                    '<span class="text-xs text-gray-600 w-28">' + d.label + '</span>' +
+                    '<div class="credit-bar flex-1"><div class="credit-fill" style="width:' + width + '%;background:' + d.color + '"></div></div>' +
+                    '<span class="text-xs font-semibold text-gray-900">' + d.count + '人</span>' +
+                '</div>';
+            }).join('');
+            document.getElementById('creditDistribution').innerHTML = distHtml || '<div class="text-center text-gray-400 py-8">暂无数据</div>';
+
+            // 贷款统计
+            var totalApps = 0, totalPaid = 0, totalAmount = 0, passCount = 0;
+            Object.keys(apps).forEach(function(u) {
+                apps[u].forEach(function(a) {
+                    totalApps++;
+                    if (a.status === 'approved' || a.status === 'paid') passCount++;
+                    if (a.status === 'paid') totalPaid += a.amount;
+                    totalAmount += a.amount;
+                });
+            });
+
+            document.getElementById('totalApps').textContent = totalApps;
+            document.getElementById('passRate').textContent = totalApps > 0 ? Math.round(passCount / totalApps * 100) + '%' : '0%';
+            document.getElementById('totalPaid').textContent = totalPaid;
+            document.getElementById('avgAmount').textContent = totalApps > 0 ? Math.round(totalAmount / totalApps) : 0;
+        }
+
+        // ==================== 操作日志 =======
+        function getLogs() { return getActivities(); }
+
+        function renderLogs() {
+            var activities = getLogs();
+            var filterType = document.getElementById('logTypeFilter').value;
+            var filtered = filterType === 'all' ? activities : activities.filter(function(a) { return a.type.indexOf(filterType) >= 0; });
+
+            if (filtered.length > 0) {
+                var html = filtered.slice(0, 20).map(function(a) {
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4"><span class="px-2 py-1 text-xs rounded-lg bg-purple-50 text-purple-700">' + a.type + '</span></td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-900">系统管理员</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + a.desc + '</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-500">192.168.1.100</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(a.time) + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('logList').innerHTML = html;
+                document.getElementById('logEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('logList').innerHTML = '';
+                document.getElementById('logEmpty').classList.remove('hidden');
+            }
+        }
+
+        function filterLogs() { renderLogs(); }
+
+        function exportLogs() {
+            var activities = getLogs();
+            if (activities.length === 0) {
+                showToast('暂无日志数据', 'error');
+                return;
+            }
+            var csv = '操作类型,操作内容,操作时间\n';
+            activities.forEach(function(a) {
+                csv += a.type + ',' + a.desc + ',' + formatDate(a.time) + '\n';
+            });
+            var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = '操作日志_' + new Date().toISOString().substring(0, 10) + '.csv';
+            link.click();
+            showToast('日志导出成功', 'success');
+        }
+
+        // ==================== 报表导出 =======
+        function getExportRecords() {
+            try { return JSON.parse(localStorage.getItem('agriExportRecords')) || []; } catch(e) { return []; }
+        }
+        function saveExportRecord(r) {
+            var records = getExportRecords();
+            records.unshift(r);
+            if (records.length > 20) records = records.slice(0, 20);
+            localStorage.setItem('agriExportRecords', JSON.stringify(records));
+        }
+
+        function renderReports() {
+            var records = getExportRecords();
+            if (records.length > 0) {
+                var html = records.map(function(r) {
+                    return '<div class="px-6 py-3 flex items-center justify-between">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<span class="px-2 py-1 text-xs rounded bg-purple-50 text-purple-700">' + r.type + '</span>' +
+                            '<span class="text-sm text-gray-700">' + r.name + '</span>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-4">' +
+                            '<span class="text-xs text-gray-400">' + formatDate(r.time) + '</span>' +
+                            '<span class="text-xs text-agri-600">已完成</span>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+                document.getElementById('exportList').innerHTML = html;
+                document.getElementById('exportEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('exportList').innerHTML = '';
+                document.getElementById('exportEmpty').classList.remove('hidden');
+            }
+        }
+
+        function exportReport(type) {
+            var typeNames = { users: '用户数据报表', loans: '贷款数据报表', products: '产品统计报表' };
+            var users = getUsers();
+            var apps = getApplications();
+            var csv = '';
+
+            if (type === 'users') {
+                csv = '用户名,真实姓名,手机号,信用积分,注册时间\n';
+                users.forEach(function(u) {
+                    csv += u.username + ',' + (u.realName || '') + ',' + (u.phone || '') + ',' + getCreditData(u.username) + ',' + formatDate(u.registeredAt || new Date()) + '\n';
+                });
+            } else if (type === 'loans') {
+                csv = '申请人,产品,金额(万),期限,状态,申请时间\n';
+                Object.keys(apps).forEach(function(username) {
+                    apps[username].forEach(function(a) {
+                        csv += username + ',' + a.product + ',' + a.amount + ',' + a.term + '个月,' + a.status + ',' + formatDate(a.createdAt) + '\n';
+                    });
+                });
+            } else if (type === 'products') {
+                var products = getProducts();
+                csv = '产品名称,额度范围,年化利率,期限,状态\n';
+                products.forEach(function(p) {
+                    csv += p.name + ',' + p.minAmount + '-' + p.maxAmount + '万,' + p.rate + ',' + p.term + ',' + (p.status === 'active' ? '上架' : '下架') + '\n';
+                });
+            }
+
+            var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = typeNames[type] + '_' + new Date().toISOString().substring(0, 10) + '.csv';
+            link.click();
+
+            saveExportRecord({ type: typeNames[type], name: link.download, time: new Date().toISOString() });
+            renderReports();
+            showToast('报表导出成功', 'success');
+        }
+
+        // ==================== 公告管理 =======
+        function getAnnouncements() {
+            try { return JSON.parse(localStorage.getItem('agriAnnouncements')) || []; } catch(e) { return []; }
+        }
+        function saveAnnouncements(a) { localStorage.setItem('agriAnnouncements', JSON.stringify(a)); }
+
+        function renderAnnouncements() {
+            var announcements = getAnnouncements();
+            if (announcements.length > 0) {
+                var html = announcements.map(function(a, idx) {
+                    var typeColors = {
+                        '系统通知': 'bg-purple-50 text-purple-700',
+                        '政策公告': 'bg-fin-50 text-fin-700',
+                        '产品更新': 'bg-agri-50 text-agri-700',
+                        '维护通知': 'bg-warn-50 text-warn-700'
+                    };
+                    var statusConfig = {
+                        published: { text: '已发布', class: 'bg-agri-100 text-agri-700' },
+                        draft: { text: '草稿', class: 'bg-gray-100 text-gray-600' }
+                    };
+                    var s = statusConfig[a.status] || statusConfig.draft;
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + a.title + '</td>' +
+                        '<td class="px-6 py-4"><span class="px-2 py-1 text-xs rounded-lg ' + (typeColors[a.type] || typeColors['系统通知']) + '">' + a.type + '</span></td>' +
+                        '<td class="px-6 py-4"><span class="status-badge ' + s.class + '">' + s.text + '</span></td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(a.createdAt) + '</td>' +
+                        '<td class="px-6 py-4">' +
+                            '<button onclick="toggleAnnouncement(' + idx + ')" class="px-3 py-1.5 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-all">' + (a.status === 'published' ? '下架' : '发布') + '</button>' +
+                            '<button onclick="deleteAnnouncement(' + idx + ')" class="ml-2 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all">删除</button>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('announcementList').innerHTML = html;
+                document.getElementById('announcementEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('announcementList').innerHTML = '';
+                document.getElementById('announcementEmpty').classList.remove('hidden');
+            }
+        }
+
+        function openAnnouncementModal() { document.getElementById('announcementForm').reset(); document.getElementById('announcementModal').classList.remove('hidden'); }
+        function closeAnnouncementModal() { document.getElementById('announcementModal').classList.add('hidden'); }
+
+        document.getElementById('announcementForm').onsubmit = function(e) {
+            e.preventDefault();
+            var announcements = getAnnouncements();
+            announcements.unshift({
+                title: document.getElementById('announcementTitle').value.trim(),
+                type: document.getElementById('announcementType').value,
+                content: document.getElementById('announcementContent').value.trim(),
+                status: document.getElementById('announcementStatus').value,
+                createdAt: new Date().toISOString()
+            });
+            saveAnnouncements(announcements);
+            closeAnnouncementModal();
+            renderAnnouncements();
+            addActivity('发布公告', '发布系统公告：' + document.getElementById('announcementTitle').value.trim());
+            showToast('公告已发布', 'success');
+        };
+
+        function toggleAnnouncement(idx) {
+            var announcements = getAnnouncements();
+            if (announcements[idx]) {
+                announcements[idx].status = announcements[idx].status === 'published' ? 'draft' : 'published';
+                saveAnnouncements(announcements);
+                renderAnnouncements();
+                showToast('状态已更新', 'success');
+            }
+        }
+
+        function deleteAnnouncement(idx) {
+            var announcements = getAnnouncements();
+            if (announcements[idx]) {
+                announcements.splice(idx, 1);
+                saveAnnouncements(announcements);
+                renderAnnouncements();
+                showToast('公告已删除', 'success');
+            }
+        }
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAdminLogin()) {
+                initDashboard();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>贷款服务 - 智能惠农信贷系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        display: ['"Outfit"', '"Noto Sans SC"', 'sans-serif'],
+                    },
+                    colors: {
+                        agri: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        fin: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        earth: { 50: '#faf8f5', 100: '#f3efe8', 200: '#e8e0d4', 300: '#d4c8b4', 400: '#b8a68a', 500: '#a08e70', 600: '#8a7a60', 700: '#736654', 800: '#5e5448', 900: '#4a4238' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+        .input-field:focus {
+            box-shadow: 0 0 0 3px rgba(34,197,94,0.15);
+            border-color: #22c55e;
+        }
+        .nav-link { position: relative; }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px; background: #22c55e; transition: width 0.3s ease;
+        }
+        .nav-link:hover::after { width: 100%; }
+        .product-card:hover .product-icon { transform: scale(1.08) rotate(-3deg); }
+        .product-icon { transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+        .match-card { transition: all 0.3s ease; }
+        .match-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.08); }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }
+    </style>
+</head>
+<body class="bg-earth-50 text-gray-800 min-h-screen">
+
+    <!-- 顶部导航栏 -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
+            <div class="flex items-center justify-between h-[68px]">
+                <a href="main.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-agri-500 to-agri-700 flex items-center justify-center shadow-md">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-lg text-gray-900 leading-tight">智能惠农信贷</h1>
+                        <p class="text-[11px] text-agri-600 font-medium tracking-wider">SMART AGRICULTURAL CREDIT</p>
+                    </div>
+                </a>
+                <nav class="hidden md:flex items-center gap-7">
+                    <a href="main.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">首页</a>
+                    <a href="#products" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款产品</a>
+                    <a href="#publish" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">发布需求</a>
+                    <a href="#match" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">智能匹配</a>
+                    <a href="#apply" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款申请</a>
+                    <a href="#charts" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">数据图表</a>
+                    <a href="news.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">新闻资讯</a>
+                    <a href="user.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">个人中心</a>
+                </nav>
+                <div class="flex items-center gap-3">
+                    <!-- 未登录状态 -->
+                    <div id="notLoggedIn" class="flex items-center gap-3">
+                        <a href="auth.html" class="px-5 py-2 text-sm font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-colors">登录</a>
+                        <a href="auth.html" onclick="localStorage.setItem('goRegister','true')" class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-agri-600 to-agri-700 rounded-lg hover:from-agri-700 hover:to-agri-800 transition-all shadow-md shadow-agri-200">注册</a>
+                    </div>
+                    <!-- 已登录状态 -->
+                    <div id="loggedIn" class="hidden items-center gap-3">
+                        <a href="user.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 transition-colors">
+                            <div class="w-7 h-7 rounded-full bg-agri-500 flex items-center justify-center text-white font-semibold text-sm" id="navAvatar">U</div>
+                            <span class="text-sm text-gray-700" id="navUsername">用户</span>
+                        </a>
+                        <button onclick="logout()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- === 1. 贷款产品展示 === -->
+    <section id="products" class="py-16 bg-white">
+        <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-agri-50 border border-agri-100 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-agri-500"></span>
+                    <span class="text-xs font-semibold text-agri-700">热门产品</span>
+                </div>
+                <h2 class="font-display font-bold text-3xl text-gray-900">贷款产品展示</h2>
+                <p class="text-sm text-gray-500 mt-2">专为农业经营主体量身定制的融资方案</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- 惠农贷 -->
+                <div class="product-card group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-agri-200 transition-all duration-300 cursor-pointer">
+                    <div class="product-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-agri-400 to-agri-600 flex items-center justify-center mb-5 shadow-lg shadow-agri-200">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-2">惠农贷</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">面向农户的综合信用贷款，无需抵押，纯信用授信</p>
+                    <div class="space-y-2 mb-5">
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">额度范围</span><span class="font-semibold text-gray-700">1-30万元</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">年化利率</span><span class="font-semibold text-agri-600">3.85%起</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">贷款期限</span><span class="font-semibold text-gray-700">1-36个月</span></div>
+                    </div>
+                    <button class="w-full py-2.5 bg-agri-50 text-agri-700 font-semibold text-sm rounded-xl border border-agri-200 group-hover:bg-agri-600 group-hover:text-white group-hover:border-agri-600 transition-all" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">立即申请</button>
+                </div>
+                <!-- 农机贷 -->
+                <div class="product-card group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-fin-200 transition-all duration-300 cursor-pointer">
+                    <div class="product-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-fin-400 to-fin-600 flex items-center justify-center mb-5 shadow-lg shadow-fin-200">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-2">农机贷</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">专项用于购置农业机械设备，支持分期还款</p>
+                    <div class="space-y-2 mb-5">
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">额度范围</span><span class="font-semibold text-gray-700">5-100万元</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">年化利率</span><span class="font-semibold text-fin-600">4.35%起</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">贷款期限</span><span class="font-semibold text-gray-700">6-60个月</span></div>
+                    </div>
+                    <button class="w-full py-2.5 bg-fin-50 text-fin-700 font-semibold text-sm rounded-xl border border-fin-200 group-hover:bg-fin-600 group-hover:text-white group-hover:border-fin-600 transition-all" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">立即申请</button>
+                </div>
+                <!-- 种植贷 -->
+                <div class="product-card group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-amber-200 transition-all duration-300 cursor-pointer">
+                    <div class="product-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center mb-5 shadow-lg shadow-amber-200">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-2">种植贷</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">支持粮食、经济作物等种植生产的流动资金需求</p>
+                    <div class="space-y-2 mb-5">
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">额度范围</span><span class="font-semibold text-gray-700">2-50万元</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">年化利率</span><span class="font-semibold text-amber-600">3.65%起</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">贷款期限</span><span class="font-semibold text-gray-700">3-24个月</span></div>
+                    </div>
+                    <button class="w-full py-2.5 bg-amber-50 text-amber-700 font-semibold text-sm rounded-xl border border-amber-200 group-hover:bg-amber-600 group-hover:text-white group-hover:border-amber-600 transition-all" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">立即申请</button>
+                </div>
+                <!-- 养殖贷 -->
+                <div class="product-card group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-rose-200 transition-all duration-300 cursor-pointer">
+                    <div class="product-icon w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-400 to-rose-600 flex items-center justify-center mb-5 shadow-lg shadow-rose-200">
+                        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-2">养殖贷</h3>
+                    <p class="text-sm text-gray-500 leading-relaxed mb-4">覆盖畜禽、水产等养殖产业的资金周转需求</p>
+                    <div class="space-y-2 mb-5">
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">额度范围</span><span class="font-semibold text-gray-700">5-80万元</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">年化利率</span><span class="font-semibold text-rose-600">4.15%起</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-400">贷款期限</span><span class="font-semibold text-gray-700">6-36个月</span></div>
+                    </div>
+                    <button class="w-full py-2.5 bg-rose-50 text-rose-700 font-semibold text-sm rounded-xl border border-rose-200 group-hover:bg-rose-600 group-hover:text-white group-hover:border-rose-600 transition-all" onclick="document.getElementById('apply').scrollIntoView({behavior:'smooth'})">立即申请</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === 2. 发布贷款需求 === -->
+    <section id="publish" class="py-16 bg-earth-50">
+        <div class="max-w-[800px] mx-auto px-6 lg:px-10">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-fin-500"></span>
+                    <span class="text-xs font-semibold text-gray-600">发布需求</span>
+                </div>
+                <h2 class="font-display font-bold text-3xl text-gray-900">发布贷款需求</h2>
+                <p class="text-sm text-gray-500 mt-2">填写您的资金需求，系统将智能匹配最优贷款方案</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+                <form id="demandForm" class="space-y-6" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">贷款类型</label>
+                            <select id="demandType" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                <option value="">请选择贷款类型</option>
+                                <option value="agriculture">种植贷</option>
+                                <option value="machinery">农机贷</option>
+                                <option value="livestock">养殖贷</option>
+                                <option value="huinong">惠农贷</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">需求金额（万元）</label>
+                            <input type="number" id="demandAmount" placeholder="如：10" min="1" max="500"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">期望期限（月）</label>
+                            <select id="demandTerm" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                <option value="">请选择期限</option>
+                                <option value="3">3个月</option><option value="6">6个月</option><option value="12">12个月</option>
+                                <option value="24">24个月</option><option value="36">36个月</option><option value="60">60个月</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">资金用途</label>
+                            <input type="text" id="demandPurpose" placeholder="如：购买种子、化肥"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">补充说明</label>
+                        <textarea id="demandRemark" rows="3" placeholder="如有其他需求请在此说明（选填）"
+                                  class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
+                    </div>
+                    <div class="flex gap-4">
+                        <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800 text-white font-semibold rounded-xl shadow-lg shadow-agri-200 transition-all text-sm">发布需求</button>
+                        <button type="reset" class="px-6 py-3 bg-white border border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm">重置</button>
+                    </div>
+                </form>
+                <div id="publishResult" class="hidden mt-6 p-4 rounded-xl bg-agri-50 border border-agri-200 text-sm text-agri-700 flex items-center gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span id="publishResultText"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === 3. 智能匹配 === -->
+    <section id="match" class="py-16 bg-white">
+        <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fin-50 border border-fin-100 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-fin-500"></span>
+                    <span class="text-xs font-semibold text-fin-700">AI 智能分析</span>
+                </div>
+                <h2 class="font-display font-bold text-3xl text-gray-900">智能匹配</h2>
+                <p class="text-sm text-gray-500 mt-2">基于您的经营数据与信用画像，AI 精准推荐最优贷款方案</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 输入区 -->
+                <div class="bg-earth-50 rounded-2xl p-8 border border-gray-100">
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-5">匹配参数</h3>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">经营类型</label>
+                                <select id="matchType" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                    <option value="crop">种植业</option><option value="machine">农机作业</option><option value="breed">养殖业</option><option value="mixed">综合经营</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">经营年限</label>
+                                <select id="matchYears" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                    <option value="1">1年以内</option><option value="3">1-3年</option><option value="5">3-5年</option><option value="10">5年以上</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">年收入（万元）</label>
+                                <input type="number" id="matchIncome" placeholder="如：15" value="10" min="1"
+                                       class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500 mb-1">信用评级</label>
+                                <select id="matchCredit" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                    <option value="A">优秀（A）</option><option value="B">良好（B）</option><option value="C">一般（C）</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button onclick="doMatch()" class="w-full py-3 bg-fin-600 hover:bg-fin-700 text-white font-semibold rounded-xl shadow-md shadow-fin-200 transition-all text-sm">开始智能匹配</button>
+                    </div>
+                </div>
+                <!-- 结果区 -->
+                <div id="matchResult" class="bg-white rounded-2xl p-8 border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <div id="matchEmpty" class="text-gray-400">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        <p class="text-sm">点击"开始智能匹配"查看推荐结果</p>
+                    </div>
+                    <div id="matchResults" class="hidden w-full space-y-4"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === 4. 贷款申请 === -->
+    <section id="apply" class="py-16 bg-earth-50">
+        <div class="max-w-[800px] mx-auto px-6 lg:px-10">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-agri-50 border border-agri-100 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-agri-500"></span>
+                    <span class="text-xs font-semibold text-agri-700">在线申请</span>
+                </div>
+                <h2 class="font-display font-bold text-3xl text-gray-900">贷款申请</h2>
+                <p class="text-sm text-gray-500 mt-2">填写申请信息，提交后专业客户经理将在24小时内联系</p>
+            </div>
+            <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+                <form id="applyForm" class="space-y-5" novalidate>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">申请人姓名</label>
+                            <input type="text" id="applyName" placeholder="如：张建国"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">身份证号</label>
+                            <input type="text" id="applyIdCard" placeholder="18位身份证号码" maxlength="18"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">手机号码</label>
+                            <input type="tel" id="applyPhone" placeholder="11位手机号" maxlength="11"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">申请产品</label>
+                            <select id="applyProduct" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                <option value="">请选择</option>
+                                <option>惠农贷</option><option>农机贷</option><option>种植贷</option><option>养殖贷</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">申请金额（万元）</label>
+                            <input type="number" id="applyAmount" placeholder="如：10" min="1"
+                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">期望期限（月）</label>
+                            <select id="applyTerm" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                                <option value="">请选择</option>
+                                <option>6</option><option>12</option><option>24</option><option>36</option><option>60</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">经营地址</label>
+                        <input type="text" id="applyAddress" placeholder="省/市/区/详细地址"
+                               class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">补充说明（选填）</label>
+                        <textarea id="applyRemark" rows="3" placeholder="如有特殊需求请在此说明"
+                                  class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
+                    </div>
+                    <div class="flex items-start gap-2 text-sm">
+                        <input type="checkbox" id="applyAgree" class="w-4 h-4 mt-0.5 rounded border-gray-300 text-agri-600 focus:ring-agri-400">
+                        <label for="applyAgree" class="text-gray-500">本人承诺所填信息真实有效，并同意 <a href="#" class="text-agri-600 hover:underline">《贷款申请协议》</a></label>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800 text-white font-semibold rounded-xl shadow-lg shadow-agri-200 transition-all text-sm">提交申请</button>
+                </form>
+                <div id="applyResult" class="hidden mt-6 p-4 rounded-xl bg-agri-50 border border-agri-200 text-sm text-agri-700 flex items-center gap-2">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span id="applyResultText"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- === 5. 数据图表 === -->
+    <section id="charts" class="py-16 bg-white">
+        <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fin-50 border border-fin-100 mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-fin-500"></span>
+                    <span class="text-xs font-semibold text-fin-700">数据统计</span>
+                </div>
+                <h2 class="font-display font-bold text-3xl text-gray-900">贷款数据图表</h2>
+                <p class="text-sm text-gray-500 mt-2">贷款发放趋势与贷款类型分布一览</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- 贷款发放趋势 -->
+                <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-agri-500"></span> 贷款发放趋势（近12个月）
+                    </h3>
+                    <div class="relative h-[320px]">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <!-- 贷款类型分布 -->
+                <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+                    <h3 class="font-display font-bold text-lg text-gray-900 mb-6 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-fin-500"></span> 贷款类型分布
+                    </h3>
+                    <div class="relative h-[320px]">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-900 text-white">
+        <div class="max-w-[1280px] mx-auto px-6 lg:px-10 py-10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p class="text-xs text-gray-500">© 2026 智能惠农信贷系统 版权所有</p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">隐私政策</a>
+                <a href="#" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">用户协议</a>
+                <a href="#" class="text-xs text-gray-500 hover:text-gray-300 transition-colors">安全保障</a>
+                <a href="bank.html" class="text-xs text-fin-400 hover:text-fin-300 transition-colors font-medium">银行管理中心</a>
+                <a href="admin.html" class="text-xs text-purple-400 hover:text-purple-300 transition-colors font-medium">管理员中心</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // ==================== 发布需求 ====================
+        document.getElementById('demandForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var type = document.getElementById('demandType').value,
+                amount = document.getElementById('demandAmount').value.trim(),
+                term = document.getElementById('demandTerm').value,
+                purpose = document.getElementById('demandPurpose').value.trim();
+            if (!type) { alert('请选择贷款类型'); return; }
+            if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的需求金额'); return; }
+            if (!term) { alert('请选择期望期限'); return; }
+            var r = document.getElementById('publishResult'), t = document.getElementById('publishResultText');
+            t.textContent = '需求发布成功！您申请的'+amount+'万元贷款需求已提交，稍后将自动跳转至智能匹配。';
+            r.classList.remove('hidden'); r.classList.add('flex');
+            setTimeout(function() {
+                r.classList.add('hidden'); r.classList.remove('flex');
+                document.getElementById('demandForm').reset();
+                document.getElementById('match').scrollIntoView({behavior:'smooth'});
+            }, 2000);
+        });
+
+        // ==================== 智能匹配 ====================
+        function doMatch() {
+            var typeMap = {crop:'种植贷', machine:'农机贷', breed:'养殖贷', mixed:'惠农贷'},
+                type = typeMap[document.getElementById('matchType').value] || '惠农贷',
+                income = parseFloat(document.getElementById('matchIncome').value) || 10,
+                credit = document.getElementById('matchCredit').value,
+                rateMap = {A: '3.85%', B: '4.35%', C: '4.75%'},
+                rate = rateMap[credit] || '4.35%',
+                maxAmount = credit === 'A' ? Math.round(income * 2.5) : credit === 'B' ? Math.round(income * 1.5) : Math.round(income * 0.8),
+                termMonths = credit === 'A' ? 36 : credit === 'B' ? 24 : 12;
+
+            var results = [
+                { product: type, amount: maxAmount, rate: rate, term: termMonths, score: credit === 'A' ? 95 : credit === 'B' ? 82 : 68, tag: credit === 'A' ? '强烈推荐' : credit === 'B' ? '推荐' : '可选' },
+                { product: '惠农贷', amount: Math.round(maxAmount * 0.7), rate: '3.85%', term: 36, score: credit === 'A' ? 88 : 75, tag: '备选' },
+                { product: '农机贷', amount: Math.round(maxAmount * 1.2), rate: '4.35%', term: 60, score: credit === 'A' ? 80 : 65, tag: '备选' }
+            ];
+            results.sort(function(a, b) { return b.score - a.score; });
+
+            var container = document.getElementById('matchResults');
+            container.innerHTML = '';
+            results.forEach(function(r, i) {
+                var colors = ['border-agri-400 bg-agri-50', 'border-fin-200 bg-fin-50/30', 'border-amber-200 bg-amber-50/30'];
+                var tagColors = ['bg-agri-100 text-agri-700', 'bg-fin-100 text-fin-700', 'bg-amber-100 text-amber-700'];
+                container.innerHTML += '<div class="match-card flex items-center justify-between p-5 rounded-2xl border '+colors[i]+'">'+
+                    '<div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center font-display font-bold text-lg text-gray-800">'+(i+1)+'</div>'+
+                    '<div><h4 class="font-semibold text-gray-900">'+r.product+'</h4><p class="text-xs text-gray-500">额度 '+r.amount+'万 · 利率 '+r.rate+' · '+r.term+'个月</p></div></div>'+
+                    '<div class="text-right"><span class="inline-block px-3 py-1 rounded-full text-xs font-semibold '+tagColors[i]+'">'+r.tag+'</span>'+
+                    '<p class="text-2xl font-display font-bold text-agri-600 mt-1">'+r.score+'<span class="text-xs text-gray-400 font-normal">分</span></p></div></div>';
+            });
+            document.getElementById('matchEmpty').classList.add('hidden');
+            container.classList.remove('hidden');
+        }
+
+        // ==================== 贷款申请 ====================
+        document.getElementById('applyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var name = document.getElementById('applyName').value.trim(),
+                phone = document.getElementById('applyPhone').value.trim(),
+                product = document.getElementById('applyProduct').value,
+                amount = document.getElementById('applyAmount').value.trim(),
+                agree = document.getElementById('applyAgree').checked;
+            if (!name) { alert('请输入申请人姓名'); return; }
+            if (!phone || !/^1[3-9]\d{9}$/.test(phone)) { alert('请输入有效的手机号码'); return; }
+            if (!product) { alert('请选择申请产品'); return; }
+            if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的申请金额'); return; }
+            if (!agree) { alert('请先阅读并同意贷款申请协议'); return; }
+            var r = document.getElementById('applyResult'), t = document.getElementById('applyResultText');
+            t.textContent = '贷款申请已提交！客户经理将在24小时内与您联系（'+phone+'），请保持电话畅通。';
+            r.classList.remove('hidden'); r.classList.add('flex');
+            setTimeout(function() { r.classList.add('hidden'); r.classList.remove('flex'); document.getElementById('applyForm').reset(); }, 3000);
+        });
+
+        // 手机号过滤
+        document.getElementById('applyPhone').addEventListener('input', function() { this.value = this.value.replace(/\D/g, '').slice(0, 11); });
+
+        // ==================== 图表 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 贷款发放趋势 (折线图)
+            var trendCtx = document.getElementById('trendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+                    datasets: [{
+                        label: '惠农贷', data: [120,135,155,140,170,185,195,210,225,240,255,270],
+                        borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#22c55e'
+                    }, {
+                        label: '农机贷', data: [80,90,105,95,115,125,130,140,150,160,175,190],
+                        borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#3b82f6'
+                    }, {
+                        label: '种植贷', data: [60,70,80,90,100,110,120,130,145,155,165,180],
+                        borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#f59e0b'
+                    }, {
+                        label: '养殖贷', data: [45,50,58,65,72,80,88,95,105,115,125,135],
+                        borderColor: '#f43f5e', backgroundColor: 'rgba(244,63,94,0.06)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#f43f5e'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 24, font: { size: 12 } } } },
+                    scales: {
+                        y: { beginAtZero: false, min: 30, grid: { color: '#f3f4f6' }, ticks: { callback: function(v) { return v + '万'; } } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 贷款类型分布 (环形图)
+            var typeCtx = document.getElementById('typeChart').getContext('2d');
+            new Chart(typeCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['惠农贷', '农机贷', '种植贷', '养殖贷'],
+                    datasets: [{
+                        data: [270, 190, 180, 135],
+                        backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#f43f5e'],
+                        borderColor: '#ffffff', borderWidth: 3,
+                        hoverBorderWidth: 4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 24, font: { size: 12 } } },
+                        tooltip: { callbacks: { label: function(ctx) { return ctx.label + ': ' + ctx.raw + '万元 (' + Math.round(ctx.raw/775*100) + '%)'; } } }
+                    },
+                    cutout: '55%'
+                }
+            });
+        });
+
+        // 登录状态检测
+        function getLoggedInUser() {
+            try {
+                var s = localStorage.getItem('agriCreditLoggedInUser') || sessionStorage.getItem('agriCreditLoggedInUser');
+                return s ? JSON.parse(s) : null;
+            } catch(e) { return null; }
+        }
+
+        function updateNavLoginState() {
+            var user = getLoggedInUser();
+            var notLoggedIn = document.getElementById('notLoggedIn');
+            var loggedIn = document.getElementById('loggedIn');
+            var navAvatar = document.getElementById('navAvatar');
+            var navUsername = document.getElementById('navUsername');
+            
+            if (user) {
+                notLoggedIn.classList.add('hidden');
+                loggedIn.classList.remove('hidden');
+                loggedIn.classList.add('flex');
+                navAvatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
+                navUsername.textContent = user.username || '用户';
+            } else {
+                notLoggedIn.classList.remove('hidden');
+                loggedIn.classList.add('hidden');
+                loggedIn.classList.remove('flex');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('agriCreditLoggedInUser');
+            sessionStorage.removeItem('agriCreditLoggedInUser');
+            alert('已安全退出');
+            window.location.href = 'auth.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', updateNavLoginState);
+    </script>
+</body>
+</html>

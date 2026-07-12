@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>银行管理中心 - 智能惠农信贷系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        display: ['"Outfit"', '"Noto Sans SC"', 'sans-serif'],
+                    },
+                    colors: {
+                        agri: { 50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac', 400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 800: '#166534', 900: '#14532d' },
+                        fin: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
+                        earth: { 50: '#faf8f5', 100: '#f3efe8', 200: '#e8e0d4', 300: '#d4c8b4', 400: '#b8a68a', 500: '#a08e70', 600: '#8a7a60', 700: '#736654', 800: '#5e5448', 900: '#4a4238' },
+                        warn: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 800: '#92400e', 900: '#78350f' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Noto Sans SC', sans-serif; }
+        .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
+        .sidebar-item { transition: all 0.25s ease; }
+        .sidebar-item.active { background: linear-gradient(to right, #2563eb, #1d4ed8); color: white; }
+        .sidebar-item:not(.active):hover { background: #eff6ff; color: #2563eb; }
+        .status-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
+        .input-field:focus { box-shadow: 0 0 0 3px rgba(37,99,235,0.15); border-color: #2563eb; }
+        .risk-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
+        .risk-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeInUp { animation: fadeInUp 0.4s ease-out; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+    <!-- 未登录提示 -->
+    <div id="notLoggedIn" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-fin-600 to-fin-800">
+        <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full mx-4 text-center">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-fin-50 flex items-center justify-center">
+                <svg class="w-10 h-10 text-fin-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H4m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+            <h2 class="font-display font-bold text-2xl text-gray-900 mb-3">银行管理中心</h2>
+            <p class="text-sm text-gray-500 mb-6">请前往统一登录页面，选择"银行工作人员"身份登录</p>
+            <a href="auth.html" class="inline-block px-8 py-3 bg-gradient-to-r from-fin-600 to-fin-700 text-white font-semibold rounded-xl shadow-lg hover:from-fin-700 hover:to-fin-800 transition-all text-sm">前往登录</a>
+            <a href="main.html" class="inline-block mt-4 text-xs text-fin-600 hover:underline">返回首页</a>
+        </div>
+    </div>
+
+    <!-- 管理后台主界面 -->
+    <div id="adminPanel" class="hidden min-h-screen">
+        <!-- 顶部导航 -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+            <div class="flex items-center justify-between px-6 h-16">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-fin-500 to-fin-700 flex items-center justify-center shadow-md">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H4m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-display font-bold text-base text-gray-900">银行管理中心</h1>
+                        <p class="text-[10px] text-fin-600 font-medium">BANK BUSINESS CENTER</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <div class="w-8 h-8 rounded-full bg-fin-100 flex items-center justify-center text-fin-700 font-semibold text-sm" id="adminAvatar">A</div>
+                        <span id="adminName">银行人员</span>
+                    </div>
+                    <button onclick="adminLogout()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex">
+            <!-- 左侧菜单 -->
+            <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] p-4 sticky top-16">
+                <nav class="space-y-2">
+                    <button onclick="switchModule('workbench')" id="navWorkbench" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+                        我的任务
+                    </button>
+                    <button onclick="switchModule('overview')" id="navOverview" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        业务概览
+                    </button>
+                    <button onclick="switchModule('approval')" id="navApproval" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        贷款审批
+                        <span id="pendingCount" class="ml-auto px-2 py-0.5 text-xs rounded-full bg-warn-100 text-warn-700">0</span>
+                    </button>
+                    <button onclick="switchModule('disbursement')" id="navDisbursement" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        放款管理
+                        <span id="disburseCount" class="ml-auto px-2 py-0.5 text-xs rounded-full bg-agri-100 text-agri-700">0</span>
+                    </button>
+                    <button onclick="switchModule('overdue')" id="navOverdue" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        逾期预警
+                        <span id="overdueCount" class="ml-auto px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-700">0</span>
+                    </button>
+                    <button onclick="switchModule('followup')" id="navFollowup" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                        客户跟进
+                    </button>
+                    <button onclick="switchModule('performance')" id="navPerformance" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        我的业绩
+                    </button>
+                    <button onclick="switchModule('demands')" id="navDemands" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        贷款需求
+                    </button>
+                    <button onclick="switchModule('farmers')" id="navFarmers" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left text-gray-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        农户信息
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- 右侧内容区 -->
+            <main class="flex-1 p-6">
+                
+                <!-- ===== 我的任务 ===== -->
+                <section id="moduleWorkbench" class="animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">我的工作台</h2>
+                    
+                    <!-- 今日任务卡片 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-fin-500 to-fin-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs opacity-90">待审批申请</span>
+                                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <div class="text-3xl font-display font-bold" id="myPending">0</div>
+                            <div class="text-xs opacity-80 mt-1">需要您处理</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-agri-500 to-agri-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs opacity-90">待放款申请</span>
+                                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div class="text-3xl font-display font-bold" id="myDisburse">0</div>
+                            <div class="text-xs opacity-80 mt-1">等待放款</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-warn-500 to-warn-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs opacity-90">逾期跟进</span>
+                                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                            </div>
+                            <div class="text-3xl font-display font-bold" id="myOverdue">0</div>
+                            <div class="text-xs opacity-80 mt-1">需要催收</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs opacity-90">客户跟进</span>
+                                <svg class="w-5 h-5 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                            </div>
+                            <div class="text-3xl font-display font-bold" id="myFollowup">0</div>
+                            <div class="text-xs opacity-80 mt-1">待回访客户</div>
+                        </div>
+                    </div>
+
+                    <!-- 快捷操作 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">快捷操作</h3>
+                        <div class="grid grid-cols-4 gap-4">
+                            <button onclick="switchModule('approval')" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-fin-50 hover:bg-fin-100 transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-fin-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-fin-700">审批申请</span>
+                            </button>
+                            <button onclick="switchModule('disbursement')" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-agri-50 hover:bg-agri-100 transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-agri-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-agri-700">确认放款</span>
+                            </button>
+                            <button onclick="switchModule('followup')" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-purple-50 hover:bg-purple-100 transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-purple-700">客户跟进</span>
+                            </button>
+                            <button onclick="switchModule('farmers')" class="flex flex-col items-center gap-2 p-4 rounded-xl bg-warn-50 hover:bg-warn-100 transition-all group">
+                                <div class="w-12 h-12 rounded-xl bg-warn-500 flex items-center justify-center group-hover:scale-105 transition-transform">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                                <span class="text-sm font-medium text-warn-700">查询农户</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 今日待办 -->
+                    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                                <h3 class="font-semibold text-gray-900">今日待办</h3>
+                                <span class="text-xs text-gray-500">优先级排序</span>
+                            </div>
+                            <div id="todoList" class="divide-y divide-gray-50">
+                                <div class="px-6 py-4 flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    <span class="text-sm text-gray-700 flex-1">处理高风险逾期客户张三的催收事宜</span>
+                                    <span class="text-xs text-red-600 font-medium">紧急</span>
+                                </div>
+                                <div class="px-6 py-4 flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-warn-500"></span>
+                                    <span class="text-sm text-gray-700 flex-1">审批李四的惠农贷申请（15万）</span>
+                                    <span class="text-xs text-warn-600 font-medium">今日</span>
+                                </div>
+                                <div class="px-6 py-4 flex items-center gap-3">
+                                    <span class="w-2 h-2 rounded-full bg-fin-500"></span>
+                                    <span class="text-sm text-gray-700 flex-1">确认已审批通过的5笔放款</span>
+                                    <span class="text-xs text-fin-600 font-medium">待处理</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-100">
+                                <h3 class="font-semibold text-gray-900">审批效率统计</h3>
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">本周审批数</span>
+                                    <span class="font-display font-bold text-fin-600">23笔</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">平均审批时长</span>
+                                    <span class="font-display font-bold text-agri-600">1.2小时</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">审批通过率</span>
+                                    <span class="font-display font-bold text-purple-600">91%</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">本月放款额</span>
+                                    <span class="font-display font-bold text-warn-600">156万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近活动 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100">
+                            <h3 class="font-semibold text-gray-900">最近处理记录</h3>
+                        </div>
+                        <div id="recentWorkLog" class="divide-y divide-gray-50"></div>
+                        <div id="workLogEmpty" class="py-12 text-center text-sm text-gray-400">暂无处理记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 业务概览 ===== -->
+                <section id="moduleOverview" class="animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">业务概览</h2>
+                    
+                    <!-- 统计卡片 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">今日审批</span>
+                                <span class="w-8 h-8 rounded-lg bg-fin-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-fin-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-fin-600" id="statTodayApproval">0</div>
+                            <div class="text-xs text-gray-400 mt-1">笔申请处理</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">待审批</span>
+                                <span class="w-8 h-8 rounded-lg bg-warn-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-warn-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-warn-600" id="statPending">0</div>
+                            <div class="text-xs text-gray-400 mt-1">笔待处理</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">已放款总额</span>
+                                <span class="w-8 h-8 rounded-lg bg-agri-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-agri-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-agri-600"><span id="statPaidAmount">0</span><span class="text-base font-normal">万</span></div>
+                            <div class="text-xs text-gray-400 mt-1">累计发放</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-xs text-gray-500">逾期预警</span>
+                                <span class="w-8 h-8 rounded-lg bg-red-50 flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                </span>
+                            </div>
+                            <div class="text-3xl font-display font-bold text-red-600" id="statOverdue">0</div>
+                            <div class="text-xs text-gray-400 mt-1">笔风险贷款</div>
+                        </div>
+                    </div>
+
+                    <!-- 业务指标 -->
+                    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                        <!-- 审批效率 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">审批效率</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-fin-50">
+                                    <span class="text-sm text-gray-600">审批通过率</span>
+                                    <span class="font-display font-bold text-fin-600" id="approvalRate">92%</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-agri-50">
+                                    <span class="text-sm text-gray-600">平均审批时长</span>
+                                    <span class="font-display font-bold text-agri-600" id="avgApprovalTime">1.5天</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-warn-50">
+                                    <span class="text-sm text-gray-600">客户满意度</span>
+                                    <span class="font-display font-bold text-warn-600">4.8分</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 放款统计 -->
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">本月放款统计</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-agri-50">
+                                    <span class="text-sm text-gray-600">惠农贷放款</span>
+                                    <span class="font-display font-bold text-agri-600">158万</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-fin-50">
+                                    <span class="text-sm text-gray-600">农机贷放款</span>
+                                    <span class="font-display font-bold text-fin-600">92万</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-amber-50">
+                                    <span class="text-sm text-gray-600">种植贷放款</span>
+                                    <span class="font-display font-bold text-amber-600">65万</span>
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg bg-rose-50">
+                                    <span class="text-sm text-gray-600">养殖贷放款</span>
+                                    <span class="font-display font-bold text-rose-600">43万</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 最近申请 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-900">最近贷款申请</h3>
+                            <button onclick="switchModule('approval')" class="text-xs text-fin-600 hover:underline">查看全部</button>
+                        </div>
+                        <div id="recentApps" class="divide-y divide-gray-50"></div>
+                        <div id="recentAppsEmpty" class="py-12 text-center text-sm text-gray-400">暂无申请记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 贷款审批 ===== -->
+                <section id="moduleApproval" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <h2 class="font-display font-bold text-xl text-gray-900">贷款审批管理</h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="filterApproval('all')" class="approval-filter active px-3 py-1.5 text-xs rounded-lg bg-fin-600 text-white font-medium">全部</button>
+                            <button onclick="filterApproval('pending')" class="approval-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">待审批</button>
+                            <button onclick="filterApproval('approved')" class="approval-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">已通过</button>
+                            <button onclick="filterApproval('rejected')" class="approval-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">已拒绝</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">申请人</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">产品</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">金额(万)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">期限</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">用途</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">申请时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="approvalList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="approvalEmpty" class="py-12 text-center text-sm text-gray-400">暂无申请数据</div>
+                    </div>
+                </section>
+
+                <!-- ===== 放款管理 ===== -->
+                <section id="moduleDisbursement" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">放款管理</h2>
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <span class="px-2 py-1 rounded bg-agri-100 text-agri-700">待放款: <span id="disbursePending">0</span></span>
+                            <span class="px-2 py-1 rounded bg-fin-100 text-fin-700">已放款: <span id="disburseDone">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">申请人</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">产品</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">金额(万)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">期限</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">审批时间</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="disburseList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="disburseEmpty" class="py-12 text-center text-sm text-gray-400">暂无待放款申请</div>
+                    </div>
+                </section>
+
+                <!-- ===== 逾期预警 ===== -->
+                <section id="moduleOverdue" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">逾期预警</h2>
+                        <div class="flex items-center gap-2">
+                            <button onclick="filterOverdue('all')" class="overdue-filter active px-3 py-1.5 text-xs rounded-lg bg-red-600 text-white font-medium">全部</button>
+                            <button onclick="filterOverdue('high')" class="overdue-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">高风险</button>
+                            <button onclick="filterOverdue('medium')" class="overdue-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">中风险</button>
+                            <button onclick="filterOverdue('low')" class="overdue-filter px-3 py-1.5 text-xs rounded-lg bg-white border border-gray-200 text-gray-600">低风险</button>
+                        </div>
+                    </div>
+
+                    <!-- 风险统计 -->
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="bg-red-50 rounded-xl border border-red-100 p-4">
+                            <div class="text-xs text-red-600 mb-1">高风险逾期</div>
+                            <div class="text-2xl font-display font-bold text-red-700" id="highRisk">0</div>
+                            <div class="text-xs text-red-500 mt-1">逾期>30天</div>
+                        </div>
+                        <div class="bg-warn-50 rounded-xl border border-warn-100 p-4">
+                            <div class="text-xs text-warn-600 mb-1">中风险逾期</div>
+                            <div class="text-2xl font-display font-bold text-warn-700" id="mediumRisk">0</div>
+                            <div class="text-xs text-warn-500 mt-1">逾期15-30天</div>
+                        </div>
+                        <div class="bg-amber-50 rounded-xl border border-amber-100 p-4">
+                            <div class="text-xs text-amber-600 mb-1">低风险逾期</div>
+                            <div class="text-2xl font-display font-bold text-amber-700" id="lowRisk">0</div>
+                            <div class="text-xs text-amber-500 mt-1">逾期<15天</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">借款人</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">贷款金额</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">逾期天数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">风险等级</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">未还本金</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">联系方式</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overdueList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="overdueEmpty" class="py-12 text-center text-sm text-gray-400">暂无逾期记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 贷款需求 ===== -->
+                <section id="moduleDemands" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">贷款需求查看</h2>
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">申请人</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">需求类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">金额(万)</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">期限</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">用途</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">备注</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">发布时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demandList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="demandEmpty" class="py-12 text-center text-sm text-gray-400">暂无需求记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 农户信息 ===== -->
+                <section id="moduleFarmers" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <h2 class="font-display font-bold text-xl text-gray-900">农户信息查询</h2>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="farmerSearch" placeholder="搜索用户名或姓名" class="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none input-field w-48">
+                            <button onclick="searchFarmers()" class="px-4 py-2 bg-fin-50 text-fin-700 border border-fin-200 rounded-lg text-sm font-medium hover:bg-fin-100 transition-all">搜索</button>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">用户名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">真实姓名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">手机号</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">经营类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">信用积分</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">贷款申请数</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">注册时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="farmerList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="farmerEmpty" class="py-12 text-center text-sm text-gray-400">暂无用户数据</div>
+                    </div>
+                </section>
+
+                <!-- ===== 客户跟进 ===== -->
+                <section id="moduleFollowup" class="hidden animate-fadeInUp">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="font-display font-bold text-xl text-gray-900">客户跟进记录</h2>
+                        <button onclick="openFollowupModal()" class="px-4 py-2 bg-gradient-to-r from-fin-600 to-fin-700 text-white font-semibold text-sm rounded-lg shadow hover:from-fin-700 hover:to-fin-800 transition-all inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            新增跟进
+                        </button>
+                    </div>
+
+                    <!-- 跟进统计 -->
+                    <div class="grid grid-cols-4 gap-4 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                            <div class="text-2xl font-display font-bold text-fin-600" id="followupTotal">0</div>
+                            <div class="text-xs text-gray-500 mt-1">总跟进数</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                            <div class="text-2xl font-display font-bold text-agri-600" id="followupCompleted">0</div>
+                            <div class="text-xs text-gray-500 mt-1">已完成</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                            <div class="text-2xl font-display font-bold text-warn-600" id="followupPending">0</div>
+                            <div class="text-xs text-gray-500 mt-1">待跟进</div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 p-4 text-center">
+                            <div class="text-2xl font-display font-bold text-purple-600" id="followupConverted">0</div>
+                            <div class="text-xs text-gray-500 mt-1">已转化</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-100">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">客户姓名</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">联系方式</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">跟进类型</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">跟进内容</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">状态</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">下次跟进</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500">记录时间</th>
+                                </tr>
+                            </thead>
+                            <tbody id="followupList" class="divide-y divide-gray-50"></tbody>
+                        </table>
+                        <div id="followupEmpty" class="py-12 text-center text-sm text-gray-400">暂无跟进记录</div>
+                    </div>
+                </section>
+
+                <!-- ===== 我的业绩 ===== -->
+                <section id="modulePerformance" class="hidden animate-fadeInUp">
+                    <h2 class="font-display font-bold text-xl text-gray-900 mb-6">我的业绩统计</h2>
+
+                    <!-- 业绩概览 -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-fin-500 to-fin-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="text-xs opacity-90 mb-2">本月审批数</div>
+                            <div class="text-4xl font-display font-bold" id="perfApproval">0</div>
+                            <div class="text-xs opacity-80 mt-2">笔申请处理</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-agri-500 to-agri-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="text-xs opacity-90 mb-2">本月放款额</div>
+                            <div class="text-4xl font-display font-bold"><span id="perfAmount">0</span>万</div>
+                            <div class="text-xs opacity-80 mt-2">累计发放金额</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-warn-500 to-warn-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="text-xs opacity-90 mb-2">审批通过率</div>
+                            <div class="text-4xl font-display font-bold"><span id="perfPassRate">0</span>%</div>
+                            <div class="text-xs opacity-80 mt-2">通过率统计</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-5 text-white shadow-lg">
+                            <div class="text-xs opacity-90 mb-2">客户满意度</div>
+                            <div class="text-4xl font-display font-bold"><span id="perfSatisfaction">0</span>分</div>
+                            <div class="text-xs opacity-80 mt-2">平均评分</div>
+                        </div>
+                    </div>
+
+                    <!-- 业绩趋势 -->
+                    <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">月度审批趋势</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-12">本月</span>
+                                    <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-fin-400 to-fin-600 rounded-full" style="width:85%"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-fin-600">23笔</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-12">上月</span>
+                                    <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-agri-400 to-agri-600 rounded-full" style="width:70%"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-agri-600">18笔</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs text-gray-600 w-12">上上月</span>
+                                    <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-400 to-purple-600 rounded-full" style="width:60%"></div>
+                                    </div>
+                                    <span class="text-xs font-semibold text-purple-600">15笔</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                            <h3 class="font-semibold text-gray-900 mb-4">产品分布</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">惠农贷</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-agri-500 rounded-full" style="width:45%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-gray-900">45%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">农机贷</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-fin-500 rounded-full" style="width:30%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-gray-900">30%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">种植贷</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-amber-500 rounded-full" style="width:15%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-gray-900">15%</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-gray-600">养殖贷</span>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-rose-500 rounded-full" style="width:10%"></div>
+                                        </div>
+                                        <span class="text-xs font-semibold text-gray-900">10%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 业绩排名 -->
+                    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+                        <h3 class="font-semibold text-gray-900 mb-4">本月业绩排名</h3>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div class="text-center p-4 bg-gradient-to-b from-yellow-50 to-yellow-100 rounded-xl border border-yellow-200">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-yellow-400 flex items-center justify-center text-white text-xl font-bold">1</div>
+                                <div class="text-sm font-semibold text-gray-900">审批员A</div>
+                                <div class="text-xs text-gray-500 mt-1">28笔 / 320万</div>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-b from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-gray-400 flex items-center justify-center text-white text-xl font-bold">2</div>
+                                <div class="text-sm font-semibold text-gray-900">审批员B</div>
+                                <div class="text-xs text-gray-500 mt-1">25笔 / 280万</div>
+                            </div>
+                            <div class="text-center p-4 bg-gradient-to-b from-amber-50 to-amber-100 rounded-xl border border-amber-200">
+                                <div class="w-12 h-12 mx-auto mb-2 rounded-full bg-amber-600 flex items-center justify-center text-white text-xl font-bold">3</div>
+                                <div class="text-sm font-semibold text-gray-900">审批员C</div>
+                                <div class="text-xs text-gray-500 mt-1">23笔 / 250万</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- 审批弹窗 -->
+    <div id="approvalModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeApprovalModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900">贷款审批</h3>
+                <button onclick="closeApprovalModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl text-sm">
+                    <div><span class="text-gray-500">申请人：</span><span class="font-medium" id="approvalUser">-</span></div>
+                    <div><span class="text-gray-500">产品：</span><span class="font-medium" id="approvalProduct">-</span></div>
+                    <div><span class="text-gray-500">金额：</span><span class="font-medium" id="approvalAmount">-</span></div>
+                    <div><span class="text-gray-500">期限：</span><span class="font-medium" id="approvalTerm">-</span></div>
+                    <div class="col-span-2"><span class="text-gray-500">用途：</span><span class="font-medium" id="approvalPurpose">-</span></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">审批意见</label>
+                    <textarea id="approvalComment" rows="3" placeholder="请填写审批意见" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field resize-none"></textarea>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="approveApplication()" class="flex-1 py-3 bg-gradient-to-r from-agri-600 to-agri-700 text-white font-semibold text-sm rounded-xl shadow hover:from-agri-700 hover:to-agri-800 transition-all">通过审批</button>
+                    <button onclick="rejectApplication()" class="flex-1 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm rounded-xl shadow hover:from-red-600 hover:to-red-700 transition-all">拒绝申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 放款弹窗 -->
+    <div id="disburseModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeDisburseModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900">确认放款</h3>
+                <button onclick="closeDisburseModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                <div class="grid grid-cols-2 gap-4 p-4 bg-agri-50 rounded-xl text-sm">
+                    <div><span class="text-gray-500">申请人：</span><span class="font-medium text-agri-700" id="disburseUser">-</span></div>
+                    <div><span class="text-gray-500">金额：</span><span class="font-medium text-agri-700" id="disburseAmount">-</span></div>
+                    <div><span class="text-gray-500">产品：</span><span class="font-medium text-agri-700" id="disburseProduct">-</span></div>
+                    <div><span class="text-gray-500">期限：</span><span class="font-medium text-agri-700" id="disburseTerm">-</span></div>
+                </div>
+                <div class="p-4 bg-fin-50 rounded-xl">
+                    <div class="text-xs text-fin-600 mb-2">放款账户信息</div>
+                    <div class="grid grid-cols-2 gap-3 text-sm">
+                        <div><span class="text-gray-500">收款银行：</span><span class="font-medium">中国农业银行</span></div>
+                        <div><span class="text-gray-500">收款账户：</span><span class="font-medium">6228 **** **** 1234</span></div>
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button onclick="confirmDisburse()" class="flex-1 py-3 bg-gradient-to-r from-agri-600 to-agri-700 text-white font-semibold text-sm rounded-xl shadow hover:from-agri-700 hover:to-agri-800 transition-all">确认放款</button>
+                    <button onclick="closeDisburseModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 客户跟进弹窗 -->
+    <div id="followupModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeFollowupModal()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="font-display font-bold text-lg text-gray-900">新增客户跟进</h3>
+                <button onclick="closeFollowupModal()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <form id="followupForm" class="p-6 space-y-5">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">客户姓名</label>
+                        <input type="text" id="followupName" placeholder="客户姓名" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">联系方式</label>
+                        <input type="text" id="followupPhone" placeholder="手机号码" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">跟进类型</label>
+                    <select id="followupType" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field">
+                        <option value="贷款咨询">贷款咨询</option>
+                        <option value="资料收集">资料收集</option>
+                        <option value="审批跟进">审批跟进</option>
+                        <option value="放款提醒">放款提醒</option>
+                        <option value="还款提醒">还款提醒</option>
+                        <option value="逾期催收">逾期催收</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 mb-1.5">跟进内容</label>
+                    <textarea id="followupContent" rows="3" placeholder="详细跟进内容" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field resize-none"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">跟进状态</label>
+                        <select id="followupStatus" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field">
+                            <option value="pending">待跟进</option>
+                            <option value="completed">已完成</option>
+                            <option value="converted">已转化</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1.5">下次跟进日期</label>
+                        <input type="date" id="followupNext" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field">
+                    </div>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-fin-600 to-fin-700 text-white font-semibold text-sm rounded-xl shadow hover:from-fin-700 hover:to-fin-800 transition-all">保存记录</button>
+                    <button type="button" onclick="closeFollowupModal()" class="px-6 py-3 bg-white text-gray-700 font-semibold text-sm rounded-xl border border-gray-200 hover:bg-gray-50 transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform -translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
+        <svg id="toastIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="toastText"></span>
+    </div>
+
+    <script>
+        // ==================== 工具函数 ====================
+        function getUsers() { try { return JSON.parse(localStorage.getItem('agriCreditUsers')) || []; } catch(e) { return []; } }
+        function getApplications() {
+            var all = {};
+            try { all = JSON.parse(localStorage.getItem('agriLoanApplications')) || {}; } catch(e) {}
+            return all;
+        }
+        function saveApplications(apps) { localStorage.setItem('agriLoanApplications', JSON.stringify(apps)); }
+        function getDemands() {
+            try { return JSON.parse(localStorage.getItem('agriLoanDemands')) || []; } catch(e) { return []; }
+        }
+        function maskPhone(p) { return p ? p.substring(0,3) + '****' + p.substring(7) : '-'; }
+        function formatDate(d) {
+            var date = new Date(d);
+            var pad = function(n) { return n < 10 ? '0' + n : n; };
+            return date.getFullYear() + '-' + pad(date.getMonth()+1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+        }
+        function showToast(msg, type) {
+            var t = document.getElementById('toast'), tx = document.getElementById('toastText'), ic = document.getElementById('toastIcon');
+            tx.textContent = msg;
+            t.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform translate-y-0 opacity-100 transition-all duration-300 flex items-center gap-2 ' + (type==='success'?'bg-agri-600':'bg-red-500');
+            ic.innerHTML = type==='success'?'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>':'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+            setTimeout(function(){t.style.transform='translateY(-80px)';t.style.opacity='0';},2800);
+        }
+        function getCreditData(username) {
+            var users = getUsers();
+            var u = users.find(function(user) { return user.username === username; });
+            if (u && u.creditScore) return u.creditScore;
+            var hash = 0;
+            for (var i = 0; i < username.length; i++) hash = ((hash << 5) - hash) + username.charCodeAt(i);
+            return 400 + Math.abs(hash % 400);
+        }
+        function getRiskLevel(days) {
+            if (days > 30) return { text: '高风险', class: 'bg-red-100 text-red-700', color: '#ef4444' };
+            if (days > 15) return { text: '中风险', class: 'bg-warn-100 text-warn-700', color: '#f59e0b' };
+            return { text: '低风险', class: 'bg-amber-100 text-amber-700', color: '#d97706' };
+        }
+
+        // ==================== 登录管理 ====================
+        var isAdminLoggedIn = false;
+        var currentApprovalFilter = 'all';
+        var currentOverdueFilter = 'all';
+        var currentAppId = null;
+        var currentAppUsername = null;
+        var currentDisburseId = null;
+        var currentDisburseUsername = null;
+
+        function checkAdminLogin() {
+            var loggedIn = sessionStorage.getItem('agriAdminLoggedIn');
+            if (loggedIn) {
+                isAdminLoggedIn = true;
+                document.getElementById('notLoggedIn').classList.add('hidden');
+                document.getElementById('adminPanel').classList.remove('hidden');
+                return true;
+            }
+            document.getElementById('notLoggedIn').classList.remove('hidden');
+            document.getElementById('adminPanel').classList.add('hidden');
+            return false;
+        }
+
+        function adminLogout() {
+            sessionStorage.removeItem('agriAdminLoggedIn');
+            isAdminLoggedIn = false;
+            showToast('已安全退出', 'success');
+            setTimeout(function() { window.location.href = 'auth.html'; }, 500);
+        }
+
+        // ==================== 模块切换 ====================
+        function switchModule(module) {
+            var modules = ['workbench', 'overview', 'approval', 'disbursement', 'overdue', 'followup', 'performance', 'demands', 'farmers'];
+            modules.forEach(function(m) {
+                document.getElementById('module' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('hidden');
+                document.getElementById('nav' + m.charAt(0).toUpperCase() + m.slice(1)).classList.remove('active');
+                document.getElementById('nav' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('text-gray-700');
+            });
+            document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1)).classList.remove('hidden');
+            document.getElementById('nav' + module.charAt(0).toUpperCase() + module.slice(1)).classList.add('active');
+            document.getElementById('nav' + module.charAt(0).toUpperCase() + module.slice(1)).classList.remove('text-gray-700');
+
+            var el = document.getElementById('module' + module.charAt(0).toUpperCase() + module.slice(1));
+            el.classList.remove('animate-fadeInUp');
+            void el.offsetWidth;
+            el.classList.add('animate-fadeInUp');
+
+            if (module === 'approval') renderApproval();
+            if (module === 'disbursement') renderDisbursement();
+            if (module === 'overdue') renderOverdue();
+            if (module === 'followup') renderFollowup();
+            if (module === 'performance') renderPerformance();
+            if (module === 'demands') renderDemands();
+            if (module === 'farmers') renderFarmers();
+        }
+
+        // ==================== 业务概览 ====================
+        function initDashboard() {
+            var apps = getApplications();
+            var users = getUsers();
+            
+            // 计算统计数据
+            var pendingCount = 0, paidAmount = 0, todayApproval = 0, overdueCount = 0;
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    if (app.status === 'pending') pendingCount++;
+                    if (app.status === 'approved') pendingCount++; // 待放款也算待处理
+                    if (app.status === 'paid') {
+                        paidAmount += app.amount;
+                        // 模拟逾期计算
+                        var paidDate = new Date(app.paidAt || app.createdAt);
+                        var now = new Date();
+                        var daysDiff = Math.floor((now - paidDate) / (1000 * 60 * 60 * 24));
+                        if (daysDiff > 60 && Math.random() > 0.7) overdueCount++; // 模拟部分逾期
+                    }
+                    // 模拟今日审批
+                    var appDate = new Date(app.createdAt);
+                    var today = new Date();
+                    if (appDate.toDateString() === today.toDateString() && (app.status === 'approved' || app.status === 'rejected')) {
+                        todayApproval++;
+                    }
+                });
+            });
+
+            document.getElementById('statTodayApproval').textContent = todayApproval;
+            document.getElementById('statPending').textContent = pendingCount;
+            document.getElementById('statPaidAmount').textContent = paidAmount;
+            document.getElementById('statOverdue').textContent = overdueCount;
+
+            document.getElementById('pendingCount').textContent = pendingCount;
+            document.getElementById('disburseCount').textContent = Object.keys(apps).reduce(function(c, u) {
+                return c + apps[u].filter(function(a) { return a.status === 'approved'; }).length;
+            }, 0);
+            document.getElementById('overdueCount').textContent = overdueCount;
+
+            // 最近申请
+            var recentApps = [];
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    recentApps.push({ username: username, ...app });
+                });
+            });
+            recentApps.sort(function(a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+            recentApps = recentApps.slice(0, 5);
+
+            if (recentApps.length > 0) {
+                var html = recentApps.map(function(app) {
+                    var statusConfig = {
+                        pending: { text: '待审批', class: 'bg-warn-100 text-warn-700' },
+                        approved: { text: '已通过', class: 'bg-agri-100 text-agri-700' },
+                        rejected: { text: '已拒绝', class: 'bg-red-100 text-red-700' },
+                        paid: { text: '已放款', class: 'bg-fin-100 text-fin-700' }
+                    };
+                    var s = statusConfig[app.status] || statusConfig.pending;
+                    return '<div class="px-6 py-3 flex items-center justify-between">' +
+                        '<div class="flex items-center gap-3">' +
+                            '<div class="w-8 h-8 rounded-full bg-fin-100 flex items-center justify-center text-fin-700 font-semibold text-sm">' + app.username.charAt(0).toUpperCase() + '</div>' +
+                            '<div><span class="font-medium text-gray-900">' + app.username + '</span><span class="text-xs text-gray-400 ml-2">' + app.product + '</span></div>' +
+                        '</div>' +
+                        '<div class="flex items-center gap-4">' +
+                            '<span class="font-semibold text-gray-900">' + app.amount + '万</span>' +
+                            '<span class="status-badge ' + s.class + '">' + s.text + '</span>' +
+                            '<span class="text-xs text-gray-400">' + formatDate(app.createdAt) + '</span>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+                document.getElementById('recentApps').innerHTML = html;
+                document.getElementById('recentAppsEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('recentApps').innerHTML = '';
+                document.getElementById('recentAppsEmpty').classList.remove('hidden');
+            }
+
+            renderApproval();
+        }
+
+        // ==================== 贷款审批 ====================
+        function filterApproval(status) {
+            currentApprovalFilter = status;
+            document.querySelectorAll('.approval-filter').forEach(function(btn) {
+                btn.classList.remove('bg-fin-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            event.target.classList.add('bg-fin-600', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-600');
+            renderApproval();
+        }
+
+        function renderApproval() {
+            var apps = getApplications();
+            var list = [];
+
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app, idx) {
+                    if (currentApprovalFilter === 'all' || app.status === currentApprovalFilter) {
+                        list.push({ username: username, idx: idx, ...app });
+                    }
+                });
+            });
+
+            list.sort(function(a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+
+            if (list.length > 0) {
+                var html = list.map(function(app) {
+                    var statusConfig = {
+                        pending: { text: '待审批', class: 'bg-warn-100 text-warn-700' },
+                        approved: { text: '已通过', class: 'bg-agri-100 text-agri-700' },
+                        rejected: { text: '已拒绝', class: 'bg-red-100 text-red-700' },
+                        paid: { text: '已放款', class: 'bg-fin-100 text-fin-700' }
+                    };
+                    var s = statusConfig[app.status] || statusConfig.pending;
+                    var actionBtn = app.status === 'pending' ? 
+                        '<button onclick="openApprovalModal(\'' + app.username + '\', ' + app.idx + ')" class="px-3 py-1.5 text-xs font-medium text-fin-700 bg-fin-50 border border-fin-200 rounded-lg hover:bg-fin-100 transition-all">审批</button>' :
+                        '<span class="text-xs text-gray-400">已处理</span>';
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + app.username + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + app.product + '</td>' +
+                        '<td class="px-6 py-4 text-sm font-semibold text-gray-900">' + app.amount + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + app.term + '个月</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-500">' + (app.purpose || '-') + '</td>' +
+                        '<td class="px-6 py-4"><span class="status-badge ' + s.class + '">' + s.text + '</span></td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(app.createdAt) + '</td>' +
+                        '<td class="px-6 py-4">' + actionBtn + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('approvalList').innerHTML = html;
+                document.getElementById('approvalEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('approvalList').innerHTML = '';
+                document.getElementById('approvalEmpty').classList.remove('hidden');
+            }
+        }
+
+        function openApprovalModal(username, idx) {
+            var apps = getApplications();
+            var app = apps[username][idx];
+            currentAppId = idx;
+            currentAppUsername = username;
+            document.getElementById('approvalUser').textContent = username;
+            document.getElementById('approvalProduct').textContent = app.product;
+            document.getElementById('approvalAmount').textContent = app.amount + '万元';
+            document.getElementById('approvalTerm').textContent = app.term + '个月';
+            document.getElementById('approvalPurpose').textContent = app.purpose || '-';
+            document.getElementById('approvalComment').value = '';
+            document.getElementById('approvalModal').classList.remove('hidden');
+        }
+
+        function closeApprovalModal() { document.getElementById('approvalModal').classList.add('hidden'); }
+
+        function approveApplication() {
+            var comment = document.getElementById('approvalComment').value.trim();
+            if (!comment) { showToast('请填写审批意见', 'error'); return; }
+            var apps = getApplications();
+            apps[currentAppUsername][currentAppId].status = 'approved';
+            apps[currentAppUsername][currentAppId].approvedAt = new Date().toISOString();
+            apps[currentAppUsername][currentAppId].approvalComment = comment;
+            saveApplications(apps);
+            closeApprovalModal();
+            initDashboard();
+            showToast('审批通过', 'success');
+        }
+
+        function rejectApplication() {
+            var comment = document.getElementById('approvalComment').value.trim();
+            if (!comment) { showToast('请填写拒绝原因', 'error'); return; }
+            var apps = getApplications();
+            apps[currentAppUsername][currentAppId].status = 'rejected';
+            apps[currentAppUsername][currentAppId].rejectedAt = new Date().toISOString();
+            apps[currentAppUsername][currentAppId].approvalComment = comment;
+            saveApplications(apps);
+            closeApprovalModal();
+            initDashboard();
+            showToast('申请已拒绝', 'success');
+        }
+
+        // ==================== 放款管理 ====================
+        function renderDisbursement() {
+            var apps = getApplications();
+            var pendingList = [], doneList = [];
+
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app, idx) {
+                    if (app.status === 'approved') pendingList.push({ username: username, idx: idx, ...app });
+                    if (app.status === 'paid') doneList.push({ username: username, idx: idx, ...app });
+                });
+            });
+
+            document.getElementById('disbursePending').textContent = pendingList.length;
+            document.getElementById('disburseDone').textContent = doneList.length;
+
+            if (pendingList.length > 0) {
+                var html = pendingList.map(function(app) {
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + app.username + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + app.product + '</td>' +
+                        '<td class="px-6 py-4 text-sm font-semibold text-agri-600">' + app.amount + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + app.term + '个月</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(app.approvedAt || app.createdAt) + '</td>' +
+                        '<td class="px-6 py-4"><span class="status-badge bg-agri-100 text-agri-700">待放款</span></td>' +
+                        '<td class="px-6 py-4"><button onclick="openDisburseModal(\'' + app.username + '\', ' + app.idx + ')" class="px-3 py-1.5 text-xs font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-all">放款</button></td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('disburseList').innerHTML = html;
+                document.getElementById('disburseEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('disburseList').innerHTML = '';
+                document.getElementById('disburseEmpty').classList.remove('hidden');
+            }
+        }
+
+        function openDisburseModal(username, idx) {
+            var apps = getApplications();
+            var app = apps[username][idx];
+            currentDisburseId = idx;
+            currentDisburseUsername = username;
+            document.getElementById('disburseUser').textContent = username;
+            document.getElementById('disburseProduct').textContent = app.product;
+            document.getElementById('disburseAmount').textContent = app.amount + '万元';
+            document.getElementById('disburseTerm').textContent = app.term + '个月';
+            document.getElementById('disburseModal').classList.remove('hidden');
+        }
+
+        function closeDisburseModal() { document.getElementById('disburseModal').classList.add('hidden'); }
+
+        function confirmDisburse() {
+            var apps = getApplications();
+            apps[currentDisburseUsername][currentDisburseId].status = 'paid';
+            apps[currentDisburseUsername][currentDisburseId].paidAt = new Date().toISOString();
+            saveApplications(apps);
+            closeDisburseModal();
+            initDashboard();
+            renderDisbursement();
+            showToast('放款成功', 'success');
+        }
+
+        // ==================== 逾期预警 ====================
+        function filterOverdue(level) {
+            currentOverdueFilter = level;
+            document.querySelectorAll('.overdue-filter').forEach(function(btn) {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-600');
+            });
+            event.target.classList.add('bg-red-600', 'text-white');
+            event.target.classList.remove('bg-white', 'text-gray-600');
+            renderOverdue();
+        }
+
+        function renderOverdue() {
+            // 模拟逾期数据
+            var overdueData = [
+                { username: 'user001', amount: 15, days: 45, unpaid: 12, phone: '138****1234', risk: 'high' },
+                { username: 'farmer_zhang', amount: 30, days: 28, unpaid: 25, phone: '139****5678', risk: 'medium' },
+                { username: 'wang_farm', amount: 8, days: 10, unpaid: 7, phone: '137****9012', risk: 'low' }
+            ];
+
+            // 筛选
+            var filtered = currentOverdueFilter === 'all' ? overdueData : overdueData.filter(function(d) { return d.risk === currentOverdueFilter; });
+
+            // 统计
+            document.getElementById('highRisk').textContent = overdueData.filter(function(d) { return d.risk === 'high'; }).length;
+            document.getElementById('mediumRisk').textContent = overdueData.filter(function(d) { return d.risk === 'medium'; }).length;
+            document.getElementById('lowRisk').textContent = overdueData.filter(function(d) { return d.risk === 'low'; }).length;
+
+            if (filtered.length > 0) {
+                var html = filtered.map(function(d) {
+                    var r = getRiskLevel(d.days);
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + d.username + '</td>' +
+                        '<td class="px-6 py-4 text-sm font-semibold text-gray-900">' + d.amount + '万</td>' +
+                        '<td class="px-6 py-4 text-sm text-red-600 font-medium">' + d.days + '天</td>' +
+                        '<td class="px-6 py-4"><span class="status-badge ' + r.class + '">' + r.text + '</span></td>' +
+                        '<td class="px-6 py-4 text-sm font-semibold text-red-600">' + d.unpaid + '万</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + d.phone + '</td>' +
+                        '<td class="px-6 py-4">' +
+                            '<button onclick="alert(\'催收记录已更新\')" class="px-3 py-1.5 text-xs font-medium text-fin-700 bg-fin-50 border border-fin-200 rounded-lg hover:bg-fin-100 transition-all">记录催收</button>' +
+                        '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('overdueList').innerHTML = html;
+                document.getElementById('overdueEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('overdueList').innerHTML = '';
+                document.getElementById('overdueEmpty').classList.remove('hidden');
+            }
+        }
+
+        // ==================== 贷款需求 ====================
+        function renderDemands() {
+            var demands = getDemands();
+            if (demands.length > 0) {
+                var html = demands.map(function(d) {
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + d.username + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + d.type + '</td>' +
+                        '<td class="px-6 py-4 text-sm font-semibold text-gray-900">' + d.amount + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + d.term + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-500">' + (d.purpose || '-') + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-500">' + (d.note || '-') + '</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(d.createdAt) + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('demandList').innerHTML = html;
+                document.getElementById('demandEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('demandList').innerHTML = '';
+                document.getElementById('demandEmpty').classList.remove('hidden');
+            }
+        }
+
+        // ==================== 农户信息 ====================
+        function searchFarmers() {
+            var term = document.getElementById('farmerSearch').value.trim().toLowerCase();
+            renderFarmers(term);
+        }
+
+        function renderFarmers(searchTerm) {
+            var users = getUsers();
+            var apps = getApplications();
+            var filtered = searchTerm ? users.filter(function(u) {
+                return u.username.toLowerCase().indexOf(searchTerm) >= 0 || (u.realName && u.realName.toLowerCase().indexOf(searchTerm) >= 0);
+            }) : users;
+
+            if (filtered.length > 0) {
+                var html = filtered.map(function(u) {
+                    var userApps = apps[u.username] || [];
+                    var credit = getCreditData(u.username);
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + u.username + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + (u.realName || '-') + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + maskPhone(u.phone) + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + (u.businessType || '-') + '</td>' +
+                        '<td class="px-6 py-4"><span class="font-semibold ' + (credit >= 600 ? 'text-agri-600' : credit >= 500 ? 'text-warn-600' : 'text-red-600') + '">' + credit + '</span></td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + userApps.length + '</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(u.registeredAt || new Date()) + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('farmerList').innerHTML = html;
+                document.getElementById('farmerEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('farmerList').innerHTML = '';
+                document.getElementById('farmerEmpty').classList.remove('hidden');
+            }
+        }
+
+        // ==================== 工作台 ====================
+        function initWorkbench() {
+            var apps = getApplications();
+            var followups = getFollowups();
+            var overdueData = getSimulatedOverdue();
+
+            // 计算待审批数
+            var pendingCount = 0;
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    if (app.status === 'pending') pendingCount++;
+                });
+            });
+
+            // 计算待放款数
+            var disburseCount = 0;
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    if (app.status === 'approved') disburseCount++;
+                });
+            });
+
+            // 计算待跟进数
+            var followupPending = followups.filter(function(f) { return f.status === 'pending'; }).length;
+
+            document.getElementById('myPending').textContent = pendingCount;
+            document.getElementById('myDisburse').textContent = disburseCount;
+            document.getElementById('myOverdue').textContent = overdueData.length;
+            document.getElementById('myFollowup').textContent = followupPending;
+
+            // 最近处理记录
+            var workLogs = [];
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    if (app.status !== 'pending') {
+                        workLogs.push({
+                            type: app.status === 'approved' ? '审批通过' : app.status === 'rejected' ? '审批拒绝' : '已放款',
+                            username: username,
+                            product: app.product,
+                            amount: app.amount,
+                            time: app.approvedAt || app.paidAt || app.createdAt
+                        });
+                    }
+                });
+            });
+            workLogs.sort(function(a, b) { return new Date(b.time) - new Date(a.time); });
+            workLogs = workLogs.slice(0, 5);
+
+            if (workLogs.length > 0) {
+                var html = workLogs.map(function(log) {
+                    var typeColor = log.type === '审批通过' ? 'bg-agri-50 text-agri-700' : log.type === '审批拒绝' ? 'bg-red-50 text-red-700' : 'bg-fin-50 text-fin-700';
+                    return '<div class="px-6 py-3 flex items-center gap-3">' +
+                        '<span class="px-2 py-0.5 text-xs rounded ' + typeColor + '">' + log.type + '</span>' +
+                        '<span class="text-sm text-gray-700 flex-1">' + log.username + ' - ' + log.product + ' (' + log.amount + '万)</span>' +
+                        '<span class="text-xs text-gray-400">' + formatDate(log.time) + '</span>' +
+                    '</div>';
+                }).join('');
+                document.getElementById('recentWorkLog').innerHTML = html;
+                document.getElementById('workLogEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('recentWorkLog').innerHTML = '';
+                document.getElementById('workLogEmpty').classList.remove('hidden');
+            }
+        }
+
+        // ==================== 客户跟进 ====================
+        function getFollowups() {
+            try { return JSON.parse(localStorage.getItem('agriFollowups')) || []; } catch(e) { return []; }
+        }
+        function saveFollowups(f) { localStorage.setItem('agriFollowups', JSON.stringify(f)); }
+
+        function renderFollowup() {
+            var followups = getFollowups();
+            
+            // 统计
+            document.getElementById('followupTotal').textContent = followups.length;
+            document.getElementById('followupCompleted').textContent = followups.filter(function(f) { return f.status === 'completed'; }).length;
+            document.getElementById('followupPending').textContent = followups.filter(function(f) { return f.status === 'pending'; }).length;
+            document.getElementById('followupConverted').textContent = followups.filter(function(f) { return f.status === 'converted'; }).length;
+
+            if (followups.length > 0) {
+                var html = followups.map(function(f) {
+                    var statusConfig = {
+                        pending: { text: '待跟进', class: 'bg-warn-100 text-warn-700' },
+                        completed: { text: '已完成', class: 'bg-agri-100 text-agri-700' },
+                        converted: { text: '已转化', class: 'bg-purple-100 text-purple-700' }
+                    };
+                    var s = statusConfig[f.status] || statusConfig.pending;
+                    return '<tr class="hover:bg-gray-50">' +
+                        '<td class="px-6 py-4 text-sm font-medium text-gray-900">' + f.name + '</td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + f.phone + '</td>' +
+                        '<td class="px-6 py-4"><span class="px-2 py-1 text-xs rounded-lg bg-fin-50 text-fin-700">' + f.type + '</span></td>' +
+                        '<td class="px-6 py-4 text-sm text-gray-600">' + f.content + '</td>' +
+                        '<td class="px-6 py-4"><span class="status-badge ' + s.class + '">' + s.text + '</span></td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-500">' + (f.nextDate || '-') + '</td>' +
+                        '<td class="px-6 py-4 text-xs text-gray-400">' + formatDate(f.createdAt) + '</td>' +
+                    '</tr>';
+                }).join('');
+                document.getElementById('followupList').innerHTML = html;
+                document.getElementById('followupEmpty').classList.add('hidden');
+            } else {
+                document.getElementById('followupList').innerHTML = '';
+                document.getElementById('followupEmpty').classList.remove('hidden');
+            }
+        }
+
+        function openFollowupModal() {
+            document.getElementById('followupForm').reset();
+            document.getElementById('followupModal').classList.remove('hidden');
+        }
+        function closeFollowupModal() { document.getElementById('followupModal').classList.add('hidden'); }
+
+        document.getElementById('followupForm').onsubmit = function(e) {
+            e.preventDefault();
+            var followups = getFollowups();
+            followups.unshift({
+                name: document.getElementById('followupName').value.trim(),
+                phone: document.getElementById('followupPhone').value.trim(),
+                type: document.getElementById('followupType').value,
+                content: document.getElementById('followupContent').value.trim(),
+                status: document.getElementById('followupStatus').value,
+                nextDate: document.getElementById('followupNext').value,
+                createdAt: new Date().toISOString()
+            });
+            saveFollowups(followups);
+            closeFollowupModal();
+            renderFollowup();
+            initWorkbench();
+            showToast('跟进记录已保存', 'success');
+        };
+
+        // ==================== 业绩统计 ====================
+        function getSimulatedOverdue() {
+            return [
+                { username: 'user001', amount: 15, days: 45 },
+                { username: 'farmer_zhang', amount: 30, days: 28 },
+                { username: 'wang_farm', amount: 8, days: 10 }
+            ];
+        }
+
+        function renderPerformance() {
+            var apps = getApplications();
+            var totalApproval = 0, totalAmount = 0, passCount = 0;
+
+            Object.keys(apps).forEach(function(username) {
+                apps[username].forEach(function(app) {
+                    totalApproval++;
+                    if (app.status === 'approved' || app.status === 'paid') passCount++;
+                    if (app.status === 'paid') totalAmount += app.amount;
+                });
+            });
+
+            document.getElementById('perfApproval').textContent = totalApproval;
+            document.getElementById('perfAmount').textContent = totalAmount;
+            document.getElementById('perfPassRate').textContent = totalApproval > 0 ? Math.round(passCount / totalApproval * 100) : 0;
+            document.getElementById('perfSatisfaction').textContent = '4.8';
+        }
+
+        // ==================== 初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAdminLogin()) {
+                initWorkbench();
+                initDashboard();
+            }
+        });
+    </script>
+</body>
+</html>
