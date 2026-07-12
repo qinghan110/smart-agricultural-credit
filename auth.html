@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="智能惠农信贷系统登录注册页面">
+  <meta name="keywords" content="惠农贷款,登录,注册,农业信贷">
   <title>统一登录 · 智能惠农信贷</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,8 +34,8 @@
 
   <div class="w-full max-w-[1200px] grid grid-cols-1 lg:grid-cols-5 rounded-3xl overflow-hidden auth-card">
 
-    <!-- 左侧品牌区 (2/5) -->
-    <div class="lg:col-span-2 bg-gradient-to-br from-agri-600 to-agri-800 p-8 lg:p-12 flex flex-col justify-between text-white relative">
+
+    <aside class="lg:col-span-2 bg-gradient-to-br from-agri-600 to-agri-800 p-8 lg:p-12 flex flex-col justify-between text-white relative">
       <div>
         <div class="flex items-center gap-3 mb-12">
           <div class="w-11 h-11 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center">
@@ -72,24 +74,20 @@
       <div class="mt-8 text-xs text-agri-100/50">
         © 2026 智能惠农信贷 · 安全加密通道
       </div>
-    </div>
+    </aside>
+    <main class="lg:col-span-3 bg-white/90 p-8 lg:p-12 relative">
 
-    <!-- 右侧表单区 (3/5) -->
-    <div class="lg:col-span-3 bg-white/90 p-8 lg:p-12 relative">
-
-      <!-- Toast -->
+      <!-- Toast通知 -->
       <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform -translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
         <svg id="toastIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span id="toastText"></span>
       </div>
 
-      <!-- 选择登录身份 -->
       <div id="panelSelect" class="slide-panel visible-panel">
         <h2 class="font-display font-bold text-2xl text-gray-900 mb-2">选择登录身份</h2>
         <p class="text-sm text-gray-500 mb-8">请选择您的身份类型，进入对应的服务系统</p>
 
         <div class="space-y-4">
-          <!-- 用户登录 -->
           <div class="type-card user p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-agri-200" onclick="selectType('user')">
             <div class="flex items-center gap-4">
               <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-agri-400 to-agri-600 flex items-center justify-center shadow-md">
@@ -103,7 +101,6 @@
             </div>
           </div>
 
-          <!-- 银行登录 -->
           <div class="type-card bank p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-fin-200" onclick="selectType('bank')">
             <div class="flex items-center gap-4">
               <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-fin-400 to-fin-600 flex items-center justify-center shadow-md">
@@ -117,7 +114,6 @@
             </div>
           </div>
 
-          <!-- 管理员登录 -->
           <div class="type-card admin p-5 rounded-2xl border-2 border-gray-100 bg-white hover:border-purple-200" onclick="selectType('admin')">
             <div class="flex items-center gap-4">
               <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center shadow-md">
@@ -137,7 +133,7 @@
         </div>
       </div>
 
-      <!-- === 登录面板 === -->
+      <!-- 登录面板 -->
       <div id="panelLogin" class="slide-panel hidden-panel">
         <div class="flex items-center gap-3 mb-6">
           <button onclick="backToSelect()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
@@ -183,7 +179,7 @@
         </form>
       </div>
 
-      <!-- === 注册面板 === -->
+      <!-- 注册面板 -->
       <div id="panelRegister" class="slide-panel hidden-panel">
         <div class="flex items-center gap-3 mb-6">
           <button onclick="backToSelect()" class="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-colors">
@@ -238,9 +234,9 @@
           </button>
         </form>
       </div>
-    </div>
+    </main>
   </div>
 
-  <script src="js/auth.js"></script>
+  <script src="js/auth.js" defer></script>
 </body>
 </html>

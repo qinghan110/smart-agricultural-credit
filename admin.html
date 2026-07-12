@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="系统管理员中心，信用积分管理、贷款产品管理、系统配置">
+    <meta name="keywords" content="管理员,信用积分,贷款产品,系统配置,农业信贷管理">
     <title>管理员中心 - 智能惠农信贷系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,7 +32,6 @@
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
-    <!-- 未登录提示 -->
     <div id="notLoggedIn" class="hidden min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-purple-800">
         <div class="bg-white rounded-2xl shadow-2xl p-10 max-w-md w-full mx-4 text-center">
             <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-purple-50 flex items-center justify-center">
@@ -45,9 +46,7 @@
         </div>
     </div>
 
-    <!-- 管理后台主界面 -->
     <div id="adminPanel" class="hidden min-h-screen">
-        <!-- 顶部导航 -->
         <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
             <div class="flex items-center justify-between px-6 h-16">
                 <div class="flex items-center gap-3">
@@ -73,7 +72,6 @@
         </header>
 
         <div class="flex">
-            <!-- 左侧菜单 -->
             <aside class="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] p-4 sticky top-16">
                 <nav class="space-y-2">
                     <button onclick="switchModule('monitor')" id="navMonitor" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-left">
@@ -119,10 +117,8 @@
                 </nav>
             </aside>
 
-            <!-- 右侧内容区 -->
             <main class="flex-1 p-6">
                 
-                <!-- ===== 系统监测 ===== -->
                 <section id="moduleMonitor" class="animate-fadeInUp">
                     <h2 class="font-display font-bold text-xl text-gray-900 mb-6">系统监测</h2>
                     
@@ -234,7 +230,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 信用积分管理 ===== -->
                 <section id="moduleCredit" class="hidden animate-fadeInUp">
                     <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
                         <h2 class="font-display font-bold text-xl text-gray-900">农户信用积分管理</h2>
@@ -289,7 +284,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 贷款产品管理 ===== -->
                 <section id="moduleProducts" class="hidden animate-fadeInUp">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="font-display font-bold text-xl text-gray-900">贷款产品管理</h2>
@@ -302,7 +296,6 @@
                     <div id="productList" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
                 </section>
 
-                <!-- ===== 银行用户管理 ===== -->
                 <section id="moduleBankusers" class="hidden animate-fadeInUp">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="font-display font-bold text-xl text-gray-900">银行用户管理</h2>
@@ -330,7 +323,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 权限管理 ===== -->
                 <section id="modulePermissions" class="hidden animate-fadeInUp">
                     <h2 class="font-display font-bold text-xl text-gray-900 mb-6">角色权限管理</h2>
 
@@ -442,7 +434,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 操作日志 ===== -->
                 <section id="moduleLogs" class="hidden animate-fadeInUp">
                     <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
                         <h2 class="font-display font-bold text-xl text-gray-900">系统操作日志</h2>
@@ -479,7 +470,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 报表导出 ===== -->
                 <section id="moduleReports" class="hidden animate-fadeInUp">
                     <h2 class="font-display font-bold text-xl text-gray-900 mb-6">报表导出中心</h2>
 
@@ -579,7 +569,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 公告管理 ===== -->
                 <section id="moduleAnnouncements" class="hidden animate-fadeInUp">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="font-display font-bold text-xl text-gray-900">系统公告管理</h2>
@@ -606,7 +595,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 系统配置 ===== -->
                 <section id="moduleConfig" class="hidden animate-fadeInUp">
                     <h2 class="font-display font-bold text-xl text-gray-900 mb-6">系统配置</h2>
                     
@@ -731,7 +719,6 @@
                     </div>
                 </section>
 
-                <!-- ===== 数据分析 ===== -->
                 <section id="moduleAnalysis" class="hidden animate-fadeInUp">
                     <h2 class="font-display font-bold text-xl text-gray-900 mb-6">数据分析</h2>
                     
@@ -792,7 +779,6 @@
         </div>
     </div>
 
-    <!-- 信用积分调整弹窗 -->
     <div id="creditModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeCreditModal()"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
@@ -832,7 +818,6 @@
         </div>
     </div>
 
-    <!-- 新增/编辑产品弹窗 -->
     <div id="productModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeProductModal()"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
@@ -887,7 +872,6 @@
         </div>
     </div>
 
-    <!-- 新增银行用户弹窗 -->
     <div id="bankUserModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeBankUserModal()"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
@@ -935,7 +919,6 @@
         </div>
     </div>
 
-    <!-- 公告弹窗 -->
     <div id="announcementModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="closeAnnouncementModal()"></div>
         <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
@@ -978,12 +961,11 @@
         </div>
     </div>
 
-    <!-- Toast 提示 -->
     <div id="toast" class="fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform -translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2">
         <svg id="toastIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span id="toastText"></span>
     </div>
 
-    <script src="js/admin.js"></script>
+    <script src="js/admin.js" defer></script>
 </body>
 </html>

@@ -1,14 +1,22 @@
+:root {
+    --admin-primary: #7c3aed;
+    --admin-primary-dark: #581c87;
+    --admin-primary-light: #a855f7;
+    --admin-primary-50: #faf5ff;
+    --admin-primary-focus: rgba(168, 85, 247, 0.15);
+}
+
 html { scroll-behavior: smooth; }
 body { font-family: 'Noto Sans SC', sans-serif; }
 .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
 .sidebar-item { transition: all 0.25s ease; }
-.sidebar-item.active { background: linear-gradient(to right, #7c3aed, #581c87); color: white; }
-.sidebar-item:not(.active):hover { background: #faf5ff; color: #7c3aed; }
+.sidebar-item.active { background: linear-gradient(to right, var(--admin-primary), var(--admin-primary-dark)); color: white; }
+.sidebar-item:not(.active):hover { background: var(--admin-primary-50); color: var(--admin-primary); }
 .status-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
-.input-field:focus { box-shadow: 0 0 0 3px rgba(168,85,247,0.15); border-color: #a855f7; }
+.input-field:focus { box-shadow: 0 0 0 3px var(--admin-primary-focus); border-color: var(--admin-primary-light); }
 .credit-bar { height: 8px; border-radius: 4px; background: #e5e7eb; overflow: hidden; }
 .credit-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
 .config-card { transition: all 0.3s ease; }
-.config-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,58,237,0.12); }
+.config-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124, 58, 237, 0.12); }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .animate-fadeInUp { animation: fadeInUp 0.4s ease-out; }

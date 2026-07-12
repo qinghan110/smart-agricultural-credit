@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="智能惠农信贷系统——为农户和农业企业提供高效、便捷、安全的农业贷款服务，涵盖惠农贷、农机贷、种植贷、养殖贷等产品，助力乡村振兴。">
+    <meta name="keywords" content="惠农信贷,农业贷款,农户贷款,农机贷,种植贷,养殖贷,农村金融,乡村振兴,农业融资">
     <title>智能惠农信贷系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,8 +68,7 @@
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-100">
         <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
             <div class="flex items-center justify-between h-[68px]">
-                <!-- Logo -->
-                <div class="flex items-center gap-3">
+	                <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-agri-500 to-agri-700 flex items-center justify-center shadow-md">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -79,7 +80,6 @@
                     </div>
                 </div>
 
-                <!-- 导航菜单 -->
                 <nav class="hidden md:flex items-center gap-8">
                     <a href="loans.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款服务</a>
                     <a href="#products" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款产品</a>
@@ -91,24 +91,21 @@
                     <a href="user.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">个人中心</a>
                 </nav>
 
-                <!-- 用户状态 -->
                 <div class="flex items-center gap-3">
-                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-agri-50 border border-agri-100">
-                        <div class="w-2 h-2 rounded-full bg-agri-500 animate-pulse"></div>
-                        <span class="text-xs text-agri-700 font-medium">系统运行正常</span>
-                    </div>
-                    <!-- 未登录状态 -->
-                    <div id="notLoggedIn" class="flex items-center gap-3">
+	                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-agri-50 border border-agri-100">
+	                        <div class="w-2 h-2 rounded-full bg-agri-500 animate-pulse"></div>
+	                        <span class="text-xs text-agri-700 font-medium">系统运行正常</span>
+	                    </div>
+	                    <div id="notLoggedIn" class="flex items-center gap-3">
                         <a href="auth.html" class="px-5 py-2 text-sm font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-colors">登录</a>
-                        <a href="auth.html" onclick="localStorage.setItem('goRegister','true')" class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-agri-600 to-agri-700 rounded-lg hover:from-agri-700 hover:to-agri-800 transition-all shadow-md shadow-agri-200">注册</a>
+                        <a href="auth.html" id="registerLink" class="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-agri-600 to-agri-700 rounded-lg hover:from-agri-700 hover:to-agri-800 transition-all shadow-md shadow-agri-200">注册</a>
                     </div>
-                    <!-- 已登录状态 -->
-                    <div id="loggedIn" class="hidden items-center gap-3">
+	                    <div id="loggedIn" class="hidden items-center gap-3">
                         <a href="user.html" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-agri-50 hover:bg-agri-100 transition-colors">
                             <div class="w-7 h-7 rounded-full bg-agri-500 flex items-center justify-center text-white font-semibold text-sm" id="navAvatar">U</div>
                             <span class="text-sm text-gray-700" id="navUsername">用户</span>
                         </a>
-                        <button onclick="logout()" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
+                        <button id="logoutBtn" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">退出</button>
                     </div>
                 </div>
             </div>
@@ -141,7 +138,7 @@
                         <div class="hidden md:block w-[45%] relative">
                             <img class="object-cover object-top w-full h-full" 
                                  src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Golden wheat field under blue sky with bright sunlight, lush green agricultural landscape, rural farmland in harvest season, professional photography, natural lighting, high quality, vibrant colors&image_size=landscape_4_3" 
-                                 alt="农业政策"
+                                 alt="农业政策" loading="lazy"
                                  onerror="this.src='https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80'">
                         </div>
                     </div>
@@ -166,12 +163,12 @@
                         <div class="hidden md:block w-[45%] relative">
                             <img class="object-cover object-top w-full h-full" 
                                  src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Modern farmer using tablet computer in lush green rice paddy field, smart agriculture technology, digital farming, young professional farmer, sunny day, vibrant colors, documentary style photography&image_size=landscape_4_3" 
-                                 alt="惠农快贷"
+                                 alt="惠农快贷" loading="lazy"
                                  onerror="this.src='https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=800&q=80'">
                         </div>
                     </div>
                     <!-- Slide 3 -->
-                    <div class="news-slide absolute inset-0 flex" style="opacity:0;transform:translateX(100%)">
+                    <div class="news-slide next absolute inset-0 flex">
                         <div class="w-full md:w-[55%] p-8 md:p-12 flex flex-col justify-center">
                             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 w-fit mb-5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -191,24 +188,24 @@
                         <div class="hidden md:block w-[45%] relative">
                             <img class="object-cover object-top w-full h-full" 
                                  src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Red tractor working in green agricultural field during spring planting season, modern farming equipment, fertile brown soil, morning golden light, productive countryside landscape, cinematic composition&image_size=landscape_4_3" 
-                                 alt="春耕贷款"
+                                 alt="春耕贷款" loading="lazy"
                                  onerror="this.src='https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&q=80'">
                         </div>
                     </div>
                 </div>
 
                 <!-- 轮播指示器 -->
-                <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                    <button onclick="goToSlide(0)" class="carousel-dot w-8 h-2 rounded-full bg-agri-500 transition-all" data-index="0"></button>
-                    <button onclick="goToSlide(1)" class="carousel-dot w-2 h-2 rounded-full bg-gray-300 transition-all" data-index="1"></button>
-                    <button onclick="goToSlide(2)" class="carousel-dot w-2 h-2 rounded-full bg-gray-300 transition-all" data-index="2"></button>
+                <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-2" id="carouselDots">
+                    <button class="carousel-dot w-8 h-2 rounded-full bg-agri-500 transition-all" data-index="0"></button>
+                    <button class="carousel-dot w-2 h-2 rounded-full bg-gray-300 transition-all" data-index="1"></button>
+                    <button class="carousel-dot w-2 h-2 rounded-full bg-gray-300 transition-all" data-index="2"></button>
                 </div>
 
                 <!-- 左右箭头 -->
-                <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white transition-colors">
+                <button id="prevBtn" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white transition-colors">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                 </button>
-                <button onclick="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white transition-colors">
+                <button id="nextBtn" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center hover:bg-white transition-colors">
                     <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </button>
             </div>
@@ -439,27 +436,25 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">贷款金额（万元）</label>
                             <div class="relative">
                                 <input type="number" id="calcAmount" value="10" min="1" max="500" 
-                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all"
-                                    oninput="calculateLoan()">
+                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all">
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">万元</span>
                             </div>
-                            <input type="range" id="rangeAmount" value="10" min="1" max="100" 
-                                class="w-full mt-3 accent-agri-500" oninput="syncAmount(this.value)">
+                            <input type="range" value="10" min="1" max="100" 
+                                class="w-full mt-3 accent-agri-500" id="rangeAmount">
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">贷款期限（月）</label>
                             <div class="relative">
                                 <input type="number" id="calcTerm" value="12" min="1" max="60" 
-                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all"
-                                    oninput="calculateLoan()">
+                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all">
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">个月</span>
                             </div>
-                            <div class="flex gap-2 mt-3">
-                                <button onclick="setTerm(6)" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">6个月</button>
-                                <button onclick="setTerm(12)" class="term-btn px-3 py-1 text-xs rounded-lg border border-agri-400 bg-agri-50 text-agri-700 font-medium">12个月</button>
-                                <button onclick="setTerm(24)" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">24个月</button>
-                                <button onclick="setTerm(36)" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">36个月</button>
+                            <div class="flex gap-2 mt-3" id="termBtns">
+	                                <button data-term="6" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">6个月</button>
+	                                <button data-term="12" class="term-btn px-3 py-1 text-xs rounded-lg border border-agri-400 bg-agri-50 text-agri-700 font-medium">12个月</button>
+	                                <button data-term="24" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">24个月</button>
+	                                <button data-term="36" class="term-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-agri-300 hover:text-agri-600 transition-colors">36个月</button>
                             </div>
                         </div>
 
@@ -467,14 +462,13 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">年化利率（%）</label>
                             <div class="relative">
                                 <input type="number" id="calcRate" value="4.35" min="1" max="15" step="0.01"
-                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all"
-                                    oninput="calculateLoan()">
+                                    class="calculator-input w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base font-semibold text-gray-900 focus:outline-none focus:border-agri-400 transition-all">
                                 <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">%</span>
                             </div>
-                            <div class="flex gap-2 mt-3">
-                                <button onclick="setRate(3.85)" class="rate-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-fin-300 hover:text-fin-600 transition-colors">3.85%</button>
-                                <button onclick="setRate(4.35)" class="rate-btn px-3 py-1 text-xs rounded-lg border border-fin-400 bg-fin-50 text-fin-700 font-medium">4.35%</button>
-                                <button onclick="setRate(4.75)" class="rate-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-fin-300 hover:text-fin-600 transition-colors">4.75%</button>
+                            <div class="flex gap-2 mt-3" id="rateBtns">
+	                                <button data-rate="3.85" class="rate-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-fin-300 hover:text-fin-600 transition-colors">3.85%</button>
+	                                <button data-rate="4.35" class="rate-btn px-3 py-1 text-xs rounded-lg border border-fin-400 bg-fin-50 text-fin-700 font-medium">4.35%</button>
+	                                <button data-rate="4.75" class="rate-btn px-3 py-1 text-xs rounded-lg border border-gray-200 bg-white text-gray-600 hover:border-fin-300 hover:text-fin-600 transition-colors">4.75%</button>
                             </div>
                         </div>
                     </div>
@@ -672,10 +666,10 @@
                 <p class="text-sm text-gray-500 mt-1">解答您在申请贷款过程中的疑问</p>
             </div>
 
-            <div class="space-y-3">
+            <div class="space-y-3" id="faqList">
                 <!-- FAQ 1 - Open -->
                 <div class="bg-earth-50 rounded-2xl border border-gray-100 overflow-hidden">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-agri-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-agri-600">Q1</span>
@@ -695,7 +689,7 @@
 
                 <!-- FAQ 2 - Closed -->
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-colors">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-gray-600">Q2</span>
@@ -715,7 +709,7 @@
 
                 <!-- FAQ 3 - Closed -->
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-colors">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-gray-600">Q3</span>
@@ -735,7 +729,7 @@
 
                 <!-- FAQ 4 - Closed -->
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-colors">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-gray-600">Q4</span>
@@ -755,7 +749,7 @@
 
                 <!-- FAQ 5 - Closed -->
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-colors">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-gray-600">Q5</span>
@@ -775,7 +769,7 @@
 
                 <!-- FAQ 6 - Closed -->
                 <div class="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-colors">
-                    <button onclick="toggleFaq(this)" class="w-full flex items-center justify-between p-5 text-left">
+                    <button class="faq-btn w-full flex items-center justify-between p-5 text-left">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                                 <span class="text-sm font-bold text-gray-600">Q6</span>
@@ -869,6 +863,6 @@
         </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script src="js/main.js" defer></script>
 </body>
 </html>
