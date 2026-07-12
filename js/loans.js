@@ -218,12 +218,9 @@
     function fillProductSelects() {
         const products = getAllProducts();
         const applySelect = document.getElementById('applyProduct');
-        const demandSelect = document.getElementById('demandType');
         applySelect.innerHTML = '<option value="">请选择</option>';
-        demandSelect.innerHTML = '<option value="">请选择贷款类型</option>';
         for (const p of products) {
             applySelect.insertAdjacentHTML('beforeend', '<option value="' + p.name + '">' + p.name + '（' + p.rate + '起，' + p.amountMin + '-' + p.amountMax + '万）</option>');
-            demandSelect.insertAdjacentHTML('beforeend', '<option value="' + p.name + '">' + p.name + '</option>');
         }
     }
 
@@ -240,77 +237,158 @@
         }, duration);
     }
 
-    // 处理发布需求表单提交
-    function handleDemandSubmit(e) {
-        e.preventDefault();
-        const type = document.getElementById('demandType').value;
-        const amount = document.getElementById('demandAmount').value.trim();
-        const term = document.getElementById('demandTerm').value;
-        const purpose = document.getElementById('demandPurpose').value.trim();
-
-        if (!type) { alert('请选择贷款类型'); return; }
-        if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的需求金额'); return; }
-        if (!term) { alert('请选择期望期限'); return; }
-
-        const demands = App.getDemands();
-        const user = App.getLoggedInUser();
-        demands.unshift({
-            id: Date.now(),
-            type,
-            amount: parseFloat(amount),
-            term: parseInt(term),
-            purpose,
-            remark: document.getElementById('demandRemark').value.trim(),
-            username: (user || {}).username || '游客',
-            createdAt: new Date().toISOString(),
-            status: 'pending'
-        });
-        App.saveDemands(demands);
-
-        showResult('publishResult', 'publishResultText',
-            '需求发布成功！您申请的' + amount + '万元' + type + '需求已提交，稍后将自动跳转至智能匹配。', 2000);
-
-        setTimeout(() => {
-            document.getElementById('demandForm').reset();
-            document.getElementById('match').scrollIntoView({ behavior: 'smooth' });
-        }, 2000);
-    }
-
     // 智能匹配
     function doMatch() {
-        const typeMap = { crop: '种植贷', machine: '农机贷', breed: '养殖贷', mixed: '惠农贷' };
-        const rateMap = { A: '3.85%', B: '4.35%', C: '4.75%' };
-        const type = typeMap[document.getElementById('matchType').value] || '惠农贷';
+        const typeMap = { crop: ['种植贷', '惠农贷'], machine: ['农机贷', '惠农贷'], breed: ['养殖贷', '惠农贷'], mixed: ['惠农贷', '农担贷'] };
         const income = parseFloat(document.getElementById('matchIncome').value) || 10;
         const credit = document.getElementById('matchCredit').value;
-        const rate = rateMap[credit] || '4.35%';
+        const years = parseInt(document.getElementById('matchYears').value) || 1;
+        const requestedAmount = parseFloat(document.getElementById('matchAmount').value) || 0;
+        const requestedTerm = parseInt(document.getElementById('matchTerm').value) || 12;
+        const purpose = document.getElementById('matchPurpose').value.trim();
 
-        const creditMultiplier = credit === 'A' ? 2.5 : credit === 'B' ? 1.5 : 0.8;
-        const termMonths = credit === 'A' ? 36 : credit === 'B' ? 24 : 12;
-        const maxAmount = Math.round(income * creditMultiplier);
+        const allProducts = getAllProducts();
 
-        const scoreBase = credit === 'A' ? 95 : credit === 'B' ? 82 : 68;
-        const results = [
-            { product: type, amount: maxAmount, rate, term: termMonths, score: scoreBase, tag: credit === 'A' ? '强烈推荐' : credit === 'B' ? '推荐' : '可选' },
-            { product: '惠农贷', amount: Math.round(maxAmount * 0.7), rate: '3.85%', term: 36, score: credit === 'A' ? 88 : 75, tag: '备选' },
-            { product: '农机贷', amount: Math.round(maxAmount * 1.2), rate: '4.35%', term: 60, score: credit === 'A' ? 80 : 65, tag: '备选' }
-        ];
-        results.sort((a, b) => b.score - a.score);
+        // 对每个产品计算匹配分数
+        const scored = allProducts.map(function(p) {
+            let score = 50; // 基础分
 
+            // 1. 经营类型匹配（+0~25）
+            const preferredTypes = typeMap[document.getElementById('matchType').value] || ['惠农贷'];
+            if (preferredTypes[0] === p.name) score += 25;
+            else if (preferredTypes.indexOf(p.name) >= 0) score += 15;
+            else if (p.category === '信用贷') score += 5;
+
+            // 2. 额度匹配（+0~20）
+            if (requestedAmount > 0) {
+                if (requestedAmount >= p.amountMin && requestedAmount <= p.amountMax) {
+                    score += 20; // 额度完全匹配
+                } else if (requestedAmount < p.amountMin) {
+                    score += 5; // 需求低于最低额度
+                } else {
+                    score += Math.max(0, 10 - (requestedAmount - p.amountMax) / p.amountMax * 10); // 超额但接近
+                }
+            } else {
+                // 没有指定金额，按收入倍数推荐
+                const creditMultiplier = credit === 'A' ? 2.5 : credit === 'B' ? 1.5 : 0.8;
+                const suggestedAmount = Math.round(income * creditMultiplier);
+                if (suggestedAmount >= p.amountMin && suggestedAmount <= p.amountMax) score += 15;
+            }
+
+            // 3. 期限匹配（+0~15）
+            if (requestedTerm <= p.termMax) {
+                score += 15;
+                // 期限刚好用满或接近
+                if (requestedTerm >= p.termMax * 0.7) score += 5;
+            } else {
+                score += Math.max(0, 10 - (requestedTerm - p.termMax) * 2);
+            }
+
+            // 4. 信用评级匹配（+0~10）
+            const rateNum = parseFloat(p.rate);
+            if (credit === 'A') {
+                score += rateNum <= 3.8 ? 10 : rateNum <= 4.0 ? 7 : 3;
+            } else if (credit === 'B') {
+                score += rateNum <= 4.2 ? 10 : rateNum <= 4.5 ? 5 : 2;
+            } else {
+                score += rateNum <= 4.5 ? 8 : 5;
+            }
+
+            // 5. 经营年限加分（+0~5）
+            if (years >= 5 && p.amountMax >= 50) score += 5;
+            else if (years >= 3 && p.amountMax >= 20) score += 3;
+
+            // 6. 利率越低越加分（+0~5）
+            score += Math.max(0, Math.round((5 - rateNum) * 3));
+
+            // 计算推荐金额和期限
+            const creditMultiplier = credit === 'A' ? 2.5 : credit === 'B' ? 1.5 : 0.8;
+            const maxByCredit = Math.round(income * creditMultiplier);
+            let recAmount = requestedAmount > 0
+                ? Math.min(requestedAmount, p.amountMax, maxByCredit)
+                : Math.min(Math.round(maxByCredit * 0.8), p.amountMax);
+            recAmount = Math.max(recAmount, p.amountMin);
+            let recTerm = requestedTerm <= p.termMax ? requestedTerm : p.termMax;
+
+            return {
+                product: p.name,
+                rate: p.rate,
+                amount: recAmount,
+                term: recTerm,
+                score: Math.min(99, Math.round(score)),
+                productId: p.id
+            };
+        });
+
+        // 排序取前3
+        scored.sort(function(a, b) { return b.score - a.score; });
+        const results = scored.slice(0, 3);
+
+        // 渲染结果
         const container = document.getElementById('matchResults');
         const colors = ['border-agri-400 bg-agri-50', 'border-fin-200 bg-fin-50/30', 'border-amber-200 bg-amber-50/30'];
+        const tagLabels = ['强烈推荐', '推荐', '备选'];
         const tagColors = ['bg-agri-100 text-agri-700', 'bg-fin-100 text-fin-700', 'bg-amber-100 text-amber-700'];
 
-        container.innerHTML = results.map((r, i) =>
-            '<div class="match-card flex items-center justify-between p-5 rounded-2xl border ' + colors[i] + '">' +
-                '<div class="flex items-center gap-4"><div class="w-12 h-12 rounded-xl bg-white flex items-center justify-center font-display font-bold text-lg text-gray-800">' + (i + 1) + '</div>' +
-                '<div><h4 class="font-semibold text-gray-900">' + r.product + '</h4><p class="text-xs text-gray-500">额度 ' + r.amount + '万 · 利率 ' + r.rate + ' · ' + r.term + '个月</p></div></div>' +
-                '<div class="text-right"><span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ' + tagColors[i] + '">' + r.tag + '</span>' +
-                '<p class="text-2xl font-display font-bold text-agri-600 mt-1">' + r.score + '<span class="text-xs text-gray-400 font-normal">分</span></p></div></div>'
-        ).join('');
+        container.innerHTML = results.map(function(r, i) {
+            return '<div class="match-card flex items-center justify-between p-4 rounded-2xl border ' + colors[i] + ' cursor-pointer hover:shadow-md transition-all" ' +
+                'onclick="window._loans.applyMatch(' + r.amount + ',\'' + r.product.replace(/'/g, "\\'") + '\',' + r.term + ')">' +
+                '<div class="flex items-center gap-4"><div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center font-display font-bold text-base text-gray-800">' + (i + 1) + '</div>' +
+                '<div class="text-left"><h4 class="font-semibold text-gray-900 text-sm">' + r.product + '</h4><p class="text-xs text-gray-500">推荐额度 ' + r.amount + '万 · 利率 ' + r.rate + ' · ' + r.term + '个月</p></div></div>' +
+                '<div class="text-right"><span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-semibold ' + tagColors[i] + '">' + tagLabels[i] + '</span>' +
+                '<p class="text-xl font-display font-bold text-agri-600 mt-0.5">' + r.score + '<span class="text-[10px] text-gray-400 font-normal">分</span></p></div></div>';
+        }).join('');
+
+        // 添加底部提示
+        container.innerHTML += '<p class="text-xs text-gray-400 text-center mt-3">点击匹配结果可直接跳转申请并自动填充信息</p>';
 
         document.getElementById('matchEmpty').classList.add('hidden');
         container.classList.remove('hidden');
+    }
+
+    // 点击匹配结果 → 自动填充申请表单
+    function applyMatch(amount, product, term) {
+        // 填充产品
+        const select = document.getElementById('applyProduct');
+        for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === product || select.options[i].text.indexOf(product) >= 0) {
+                select.selectedIndex = i;
+                break;
+            }
+        }
+        // 填充金额
+        document.getElementById('applyAmount').value = amount;
+        // 填充期限
+        const termSelect = document.getElementById('applyTerm');
+        for (let i = 0; i < termSelect.options.length; i++) {
+            if (parseInt(termSelect.options[i].value) === term || parseInt(termSelect.options[i].text) === term) {
+                termSelect.selectedIndex = i;
+                break;
+            }
+        }
+        // 填充资金用途
+        const purpose = document.getElementById('matchPurpose').value.trim();
+        if (purpose) {
+            document.getElementById('applyRemark').value = purpose;
+        }
+        // 如果已登录，自动填充用户信息
+        const user = App.getLoggedInUser();
+        if (user) {
+            if (document.getElementById('applyName').value === '' && user.realName) {
+                document.getElementById('applyName').value = user.realName;
+            }
+            if (document.getElementById('applyPhone').value === '' && user.phone) {
+                document.getElementById('applyPhone').value = user.phone;
+            }
+        }
+        // 高亮申请表单
+        const applySection = document.getElementById('apply');
+        applySection.scrollIntoView({ behavior: 'smooth' });
+        const form = document.getElementById('applyForm');
+        form.classList.add('ring-2', 'ring-agri-400', 'ring-offset-2', 'rounded-2xl');
+        setTimeout(function() {
+            form.classList.remove('ring-2', 'ring-agri-400', 'ring-offset-2');
+        }, 2000);
     }
 
     // 处理贷款申请表单提交
@@ -418,6 +496,7 @@
         selectProduct,
         filterProducts,
         doMatch,
+        applyMatch,
         logout: function() { App.logout(); }
     };
 
@@ -436,7 +515,6 @@
         });
 
         // 表单事件
-        document.getElementById('demandForm').addEventListener('submit', handleDemandSubmit);
         document.getElementById('applyForm').addEventListener('submit', handleApplySubmit);
         document.getElementById('applyPhone').addEventListener('input', handlePhoneInput);
     });

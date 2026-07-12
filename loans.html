@@ -41,15 +41,14 @@
                     <h1 class="font-display font-bold text-lg text-gray-900 leading-tight">智能惠农信贷 <small class="block text-[11px] text-agri-600 font-medium tracking-wider">SMART AGRICULTURAL CREDIT</small></h1>
                 </a>
                 <nav class="hidden md:flex items-center gap-7">
-                    <a href="main.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">首页</a>
-                    <a href="#products" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款产品</a>
-                    <a href="#publish" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">发布需求</a>
-                    <a href="#match" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">智能匹配</a>
-                    <a href="#apply" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款申请</a>
-                    <a href="#charts" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">数据图表</a>
-                    <a href="news.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">新闻资讯</a>
-                    <a href="user.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">个人中心</a>
-                </nav>
+	                    <a href="main.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">首页</a>
+	                    <a href="#products" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款产品</a>
+	                    <a href="#match" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">智能匹配</a>
+	                    <a href="#apply" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">贷款申请</a>
+	                    <a href="#charts" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">数据图表</a>
+	                    <a href="news.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">新闻资讯</a>
+	                    <a href="user.html" class="nav-link text-sm font-medium text-gray-600 hover:text-agri-700 transition-colors">个人中心</a>
+	                </nav>
                 <div class="flex items-center gap-3">
                 <div id="notLoggedIn" class="flex items-center gap-3">
                         <a href="auth.html" class="px-5 py-2 text-sm font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-colors">登录</a>
@@ -89,63 +88,7 @@
         </div>
     </section>
 
-    <section id="publish" class="py-16 bg-earth-50">
-        <div class="max-w-[800px] mx-auto px-6 lg:px-10">
-            <div class="text-center mb-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-gray-200 mb-3">
-                    <span class="w-1.5 h-1.5 rounded-full bg-fin-500"></span>
-                    <span class="text-xs font-semibold text-gray-600">发布需求</span>
-                </div>
-                <h2 class="font-display font-bold text-3xl text-gray-900">发布贷款需求</h2>
-                <p class="text-sm text-gray-500 mt-2">填写您的资金需求，系统将智能匹配最优贷款方案</p>
-            </div>
-            <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
-                <form id="demandForm" class="space-y-6" novalidate>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">贷款类型</label>
-                            <select id="demandType" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                                <option value="">请选择贷款类型</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">需求金额（万元）</label>
-                            <input type="number" id="demandAmount" placeholder="如：10" min="1" max="500"
-                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">期望期限（月）</label>
-                            <select id="demandTerm" class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                                <option value="">请选择期限</option>
-                                <option value="3">3个月</option><option value="6">6个月</option><option value="12">12个月</option>
-                                <option value="24">24个月</option><option value="36">36个月</option><option value="60">60个月</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">资金用途</label>
-                            <input type="text" id="demandPurpose" placeholder="如：购买种子、化肥"
-                                   class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">补充说明</label>
-                        <textarea id="demandRemark" rows="3" placeholder="如有其他需求请在此说明（选填）"
-                                  class="w-full px-4 py-3 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all resize-none"></textarea>
-                    </div>
-                    <div class="flex gap-4">
-                        <button type="submit" class="flex-1 py-3 bg-gradient-to-r from-agri-600 to-agri-700 hover:from-agri-700 hover:to-agri-800 text-white font-semibold rounded-xl shadow-lg shadow-agri-200 transition-all text-sm">发布需求</button>
-                        <button type="reset" class="px-6 py-3 bg-white border border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm">重置</button>
-                    </div>
-                </form>
-                <div id="publishResult" class="hidden mt-6 p-4 rounded-xl bg-agri-50 border border-agri-200 text-sm text-agri-700 flex items-center gap-2">
-                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span id="publishResultText"></span>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="match" class="py-16 bg-white">
+    <section id="match" class="py-16 bg-earth-50">
         <div class="max-w-[1280px] mx-auto px-6 lg:px-10">
             <div class="text-center mb-12">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-fin-50 border border-fin-100 mb-3">
@@ -156,51 +99,69 @@
                 <p class="text-sm text-gray-500 mt-2">基于您的经营数据与信用画像，AI 精准推荐最优贷款方案</p>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="bg-earth-50 rounded-2xl p-8 border border-gray-100">
-                    <h3 class="font-display font-bold text-lg text-gray-900 mb-5">匹配参数</h3>
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">经营类型</label>
-                                <select id="matchType" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                                    <option value="crop">种植业</option><option value="machine">农机作业</option><option value="breed">养殖业</option><option value="mixed">综合经营</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">经营年限</label>
-                                <select id="matchYears" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                                    <option value="1">1年以内</option><option value="3">1-3年</option><option value="5">3-5年</option><option value="10">5年以上</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">年收入（万元）</label>
-                                <input type="number" id="matchIncome" placeholder="如：15" value="10" min="1"
-                                       class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1">信用评级</label>
-                                <select id="matchCredit" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
-                                    <option value="A">优秀（A）</option><option value="B">良好（B）</option><option value="C">一般（C）</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button onclick="window._loans.doMatch()" class="w-full py-3 bg-fin-600 hover:bg-fin-700 text-white font-semibold rounded-xl shadow-md shadow-fin-200 transition-all text-sm">开始智能匹配</button>
-                    </div>
-                </div>
-                <div id="matchResult" class="bg-white rounded-2xl p-8 border border-gray-100 flex flex-col items-center justify-center text-center">
-                    <div id="matchEmpty" class="text-gray-400">
-                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                        <p class="text-sm">点击"开始智能匹配"查看推荐结果</p>
-                    </div>
-                    <div id="matchResults" class="hidden w-full space-y-4"></div>
-                </div>
-            </div>
+	                <div class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+	                    <h3 class="font-display font-bold text-lg text-gray-900 mb-5">匹配参数</h3>
+	                    <div class="space-y-4">
+	                        <div class="grid grid-cols-2 gap-4">
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">经营类型</label>
+	                                <select id="matchType" class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                                    <option value="crop">种植业</option><option value="machine">农机作业</option><option value="breed">养殖业</option><option value="mixed">综合经营</option>
+	                                </select>
+	                            </div>
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">经营年限</label>
+	                                <select id="matchYears" class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                                    <option value="1">1年以内</option><option value="3">1-3年</option><option value="5">3-5年</option><option value="10">5年以上</option>
+	                                </select>
+	                            </div>
+	                        </div>
+	                        <div class="grid grid-cols-2 gap-4">
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">年收入（万元）</label>
+	                                <input type="number" id="matchIncome" placeholder="如：15" value="10" min="1"
+	                                       class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                            </div>
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">信用评级</label>
+	                                <select id="matchCredit" class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                                    <option value="A">优秀（A）</option><option value="B">良好（B）</option><option value="C">一般（C）</option>
+	                                </select>
+	                            </div>
+	                        </div>
+	                        <div class="grid grid-cols-2 gap-4">
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">需求金额（万元）</label>
+	                                <input type="number" id="matchAmount" placeholder="如：10" min="1"
+	                                       class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                            </div>
+	                            <div>
+	                                <label class="block text-xs font-medium text-gray-500 mb-1">期望期限（月）</label>
+	                                <select id="matchTerm" class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                                    <option value="6">6个月</option><option value="12" selected>12个月</option><option value="24">24个月</option><option value="36">36个月</option><option value="60">60个月</option>
+	                                </select>
+	                            </div>
+	                        </div>
+	                        <div>
+	                            <label class="block text-xs font-medium text-gray-500 mb-1">资金用途（选填）</label>
+	                            <input type="text" id="matchPurpose" placeholder="如：购买种子、化肥"
+	                                   class="w-full px-4 py-2.5 bg-earth-50 border border-gray-200 rounded-xl text-sm focus:outline-none input-field transition-all">
+	                        </div>
+	                        <button onclick="window._loans.doMatch()" class="w-full py-3 bg-gradient-to-r from-fin-600 to-fin-700 hover:from-fin-700 hover:to-fin-800 text-white font-semibold rounded-xl shadow-md shadow-fin-200 transition-all text-sm">开始智能匹配</button>
+	                    </div>
+	                </div>
+	                <div id="matchResult" class="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm flex flex-col items-center justify-center text-center">
+	                    <div id="matchEmpty" class="text-gray-400">
+	                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+	                        <p class="text-sm">点击"开始智能匹配"查看推荐结果</p>
+	                    </div>
+	                    <div id="matchResults" class="hidden w-full space-y-3"></div>
+	                </div>
+	            </div>
         </div>
     </section>
 
-    <section id="apply" class="py-16 bg-earth-50">
+    <section id="apply" class="py-16 bg-white">
         <div class="max-w-[800px] mx-auto px-6 lg:px-10">
             <div class="text-center mb-10">
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-agri-50 border border-agri-100 mb-3">
