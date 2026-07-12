@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员中心 - 智能惠农信贷系统</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="sync.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1011,7 +1012,11 @@
         function getProducts() {
             try { return JSON.parse(localStorage.getItem('agriLoanProducts')) || getDefaultProducts(); } catch(e) { return getDefaultProducts(); }
         }
-        function saveProducts(p) { localStorage.setItem('agriLoanProducts', JSON.stringify(p)); }
+        function saveProducts(p) {
+            localStorage.setItem('agriLoanProducts', JSON.stringify(p));
+            // 触发数据更新事件，通知所有打开的页面
+            window.dispatchEvent(new CustomEvent('agriDataUpdated', { detail: { type: 'products', products: p } }));
+        }
         function getDefaultProducts() {
             return [
                 { id: 1, name: '惠农贷', minAmount: 1, maxAmount: 30, rate: '3.85%起', term: '1-36个月', desc: '面向农户的综合信用贷款，无需抵押，纯信用授信', status: 'active', color: 'from-agri-400 to-agri-600' },
