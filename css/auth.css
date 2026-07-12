@@ -10,6 +10,11 @@
   --transition-base: 0.3s ease;
   --transition-panel: 0.35s ease;
   --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.08);
+  --theme-primary: #22c55e;
+  --theme-primary-dark: #15803d;
+  --theme-primary-light: #f0fdf4;
+  --theme-focus-ring: rgba(34,197,94,0.15);
+  --theme-transition: 0.3s ease;
 }
 
 body {
@@ -17,20 +22,11 @@ body {
   background: var(--color-bg);
 }
 
-.font-display {
-  font-family: 'Outfit', 'Noto Sans SC', sans-serif;
-}
-
 .auth-card {
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: var(--shadow-card);
-}
-
-.input-field:focus {
-  box-shadow: 0 0 0 3px var(--color-primary-bg);
-  border-color: var(--color-primary);
 }
 
 .type-card {

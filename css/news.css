@@ -1,23 +1,12 @@
 :root {
     --color-primary: #22c55e;
+    --theme-primary: #22c55e;
+    --theme-primary-dark: #16a34a;
+    --theme-primary-light: #f0fdf4;
+    --theme-transition: 0.3s ease;
     --shadow-card-hover: 0 12px 32px rgba(0,0,0,0.08);
 }
 
-html { scroll-behavior: smooth; }
-body { font-family: 'Noto Sans SC', sans-serif; }
-.font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
-.nav-link { position: relative; }
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--color-primary);
-    transition: width 0.3s ease;
-}
-.nav-link:hover::after { width: 100%; }
 .news-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .news-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card-hover); }
 .filter-btn.active { background: var(--color-primary); color: white; }
@@ -29,5 +18,3 @@ body { font-family: 'Noto Sans SC', sans-serif; }
 }
 .line-clamp-2 { -webkit-line-clamp: 2; }
 .line-clamp-3 { -webkit-line-clamp: 3; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.animate-fadeInUp { animation: fadeInUp 0.5s ease-out; }

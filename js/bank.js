@@ -1,37 +1,7 @@
 (function () {
     'use strict';
 
-    // ==================== 工具函数 ====================
-    function safeParse(key) {
-        try { return JSON.parse(localStorage.getItem(key)); }
-        catch (e) { return null; }
-    }
-
-    function safeSave(key, data) {
-        try { localStorage.setItem(key, JSON.stringify(data)); }
-        catch (e) { showToast('存储空间不足，操作失败', 'error'); }
-    }
-
-    function getUsers() { return safeParse('agriCreditUsers') || []; }
-
-    function getApplications() { return safeParse('agriLoanApplications') || {}; }
-
-    function saveApplications(apps) { safeSave('agriLoanApplications', apps); }
-
-    function getDemands() { return safeParse('agriLoanDemands') || []; }
-
-    function getFollowups() { return safeParse('agriFollowups') || []; }
-
-    function saveFollowups(f) { safeSave('agriFollowups', f); }
-
-    function maskPhone(p) { return p ? p.substring(0, 3) + '****' + p.substring(7) : '-'; }
-
-    function formatDate(d) {
-        const date = new Date(d);
-        const pad = (n) => n < 10 ? '0' + n : n;
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
-    }
-
+    // ==================== 配置常量 ====================
     const STATUS_CONFIG = {
         pending: { text: '待审批', class: 'bg-warn-100 text-warn-700' },
         approved: { text: '已通过', class: 'bg-agri-100 text-agri-700' },
@@ -49,26 +19,9 @@
         return (config || STATUS_CONFIG)[status] || STATUS_CONFIG.pending;
     }
 
-    function showToast(msg, type) {
-        const t = document.getElementById('toast');
-        const tx = document.getElementById('toastText');
-        const ic = document.getElementById('toastIcon');
-        tx.textContent = msg;
-        t.className = `fixed top-6 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform translate-y-0 opacity-100 transition-all duration-300 flex items-center gap-2 ${type === 'success' ? 'bg-agri-600' : 'bg-red-500'}`;
-        ic.innerHTML = type === 'success'
-            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
-            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
-        setTimeout(() => { t.style.transform = 'translateY(-80px)'; t.style.opacity = '0'; }, 2800);
-    }
+    function getFollowups() { return App.safeGetJSON('agriFollowups') || []; }
 
-    function getCreditData(username) {
-        const users = getUsers();
-        const u = users.find(user => user.username === username);
-        if (u && u.creditScore) return u.creditScore;
-        let hash = 0;
-        for (let i = 0; i < username.length; i++) hash = ((hash << 5) - hash) + username.charCodeAt(i);
-        return 400 + Math.abs(hash % 400);
-    }
+    function saveFollowups(f) { App.safeSetJSON('agriFollowups', f); }
 
     function getRiskLevel(days) {
         if (days > 30) return { text: '高风险', class: 'bg-red-100 text-red-700', color: '#ef4444' };
@@ -77,7 +30,7 @@
     }
 
     function getAllApps() {
-        const apps = getApplications();
+        const apps = App.getApplications();
         const list = [];
         Object.keys(apps).forEach(username => {
             apps[username].forEach((app, idx) => {
@@ -88,33 +41,12 @@
     }
 
     // ==================== 登录管理 ====================
-    let isAdminLoggedIn = false;
     let currentApprovalFilter = 'all';
     let currentOverdueFilter = 'all';
     let currentAppId = null;
     let currentAppUsername = null;
     let currentDisburseId = null;
     let currentDisburseUsername = null;
-
-    function checkAdminLogin() {
-        const loggedIn = sessionStorage.getItem('agriAdminLoggedIn');
-        if (loggedIn) {
-            isAdminLoggedIn = true;
-            document.getElementById('notLoggedIn').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-            return true;
-        }
-        document.getElementById('notLoggedIn').classList.remove('hidden');
-        document.getElementById('adminPanel').classList.add('hidden');
-        return false;
-    }
-
-    function adminLogout() {
-        sessionStorage.removeItem('agriAdminLoggedIn');
-        isAdminLoggedIn = false;
-        showToast('已安全退出', 'success');
-        setTimeout(() => { window.location.href = 'auth.html'; }, 500);
-    }
 
     // ==================== 模块切换 ====================
     const MODULES = ['workbench', 'overview', 'approval', 'disbursement', 'overdue', 'followup', 'performance', 'demands', 'farmers'];
@@ -129,33 +61,9 @@
         farmers: renderFarmers
     };
 
-    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-    function switchModule(module) {
-        MODULES.forEach(m => {
-            document.getElementById('module' + capitalize(m)).classList.add('hidden');
-            const nav = document.getElementById('nav' + capitalize(m));
-            nav.classList.remove('active');
-            nav.classList.add('text-gray-700');
-        });
-
-        const el = document.getElementById('module' + capitalize(module));
-        el.classList.remove('hidden');
-        const nav = document.getElementById('nav' + capitalize(module));
-        nav.classList.add('active');
-        nav.classList.remove('text-gray-700');
-
-        el.classList.remove('animate-fadeInUp');
-        void el.offsetWidth;
-        el.classList.add('animate-fadeInUp');
-
-        const renderer = MODULE_RENDER_MAP[module];
-        if (renderer) renderer();
-    }
-
     // ==================== 业务概览 ====================
     function initDashboard() {
-        const apps = getApplications();
+        const apps = App.getApplications();
 
         let pendingCount = 0, paidAmount = 0, todayApproval = 0, overdueCount = 0;
         let disburseCount = 0;
@@ -200,7 +108,7 @@
                     <div class="flex items-center gap-4">
                         <span class="font-semibold text-gray-900">${app.amount}万</span>
                         <span class="status-badge ${s.class}">${s.text}</span>
-                        <span class="text-xs text-gray-400">${formatDate(app.createdAt)}</span>
+                        <span class="text-xs text-gray-400">${App.formatDate(app.createdAt)}</span>
                     </div>
                 </div>`;
             }).join('');
@@ -243,7 +151,7 @@
                     <td class="px-6 py-4 text-sm text-gray-600">${app.term}个月</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${app.purpose || '-'}</td>
                     <td class="px-6 py-4"><span class="status-badge ${s.class}">${s.text}</span></td>
-                    <td class="px-6 py-4 text-xs text-gray-400">${formatDate(app.createdAt)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${App.formatDate(app.createdAt)}</td>
                     <td class="px-6 py-4">${actionBtn}</td>
                 </tr>`;
             }).join('');
@@ -255,7 +163,7 @@
     }
 
     function openApprovalModal(username, idx) {
-        const apps = getApplications();
+        const apps = App.getApplications();
         const app = apps[username][idx];
         currentAppId = idx;
         currentAppUsername = username;
@@ -272,34 +180,34 @@
 
     function approveApplication() {
         const comment = document.getElementById('approvalComment').value.trim();
-        if (!comment) { showToast('请填写审批意见', 'error'); return; }
-        const apps = getApplications();
+        if (!comment) { App.showToast('请填写审批意见', 'error'); return; }
+        const apps = App.getApplications();
         if (!apps[currentAppUsername] || !apps[currentAppUsername][currentAppId]) {
-            showToast('数据异常，请刷新重试', 'error'); return;
+            App.showToast('数据异常，请刷新重试', 'error'); return;
         }
         apps[currentAppUsername][currentAppId].status = 'approved';
         apps[currentAppUsername][currentAppId].approvedAt = new Date().toISOString();
         apps[currentAppUsername][currentAppId].approvalComment = comment;
-        saveApplications(apps);
+        App.saveApplications(apps);
         closeApprovalModal();
         initDashboard();
-        showToast('审批通过', 'success');
+        App.showToast('审批通过', 'success');
     }
 
     function rejectApplication() {
         const comment = document.getElementById('approvalComment').value.trim();
-        if (!comment) { showToast('请填写拒绝原因', 'error'); return; }
-        const apps = getApplications();
+        if (!comment) { App.showToast('请填写拒绝原因', 'error'); return; }
+        const apps = App.getApplications();
         if (!apps[currentAppUsername] || !apps[currentAppUsername][currentAppId]) {
-            showToast('数据异常，请刷新重试', 'error'); return;
+            App.showToast('数据异常，请刷新重试', 'error'); return;
         }
         apps[currentAppUsername][currentAppId].status = 'rejected';
         apps[currentAppUsername][currentAppId].rejectedAt = new Date().toISOString();
         apps[currentAppUsername][currentAppId].approvalComment = comment;
-        saveApplications(apps);
+        App.saveApplications(apps);
         closeApprovalModal();
         initDashboard();
-        showToast('申请已拒绝', 'success');
+        App.showToast('申请已拒绝', 'success');
     }
 
     // ==================== 放款管理 ====================
@@ -318,7 +226,7 @@
                     <td class="px-6 py-4 text-sm text-gray-600">${app.product}</td>
                     <td class="px-6 py-4 text-sm font-semibold text-agri-600">${app.amount}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${app.term}个月</td>
-                    <td class="px-6 py-4 text-xs text-gray-400">${formatDate(app.approvedAt || app.createdAt)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${App.formatDate(app.approvedAt || app.createdAt)}</td>
                     <td class="px-6 py-4"><span class="status-badge bg-agri-100 text-agri-700">待放款</span></td>
                     <td class="px-6 py-4"><button data-action="disburse" data-username="${app.username}" data-idx="${app.idx}" class="action-btn px-3 py-1.5 text-xs font-medium text-agri-700 bg-agri-50 border border-agri-200 rounded-lg hover:bg-agri-100 transition-all">放款</button></td>
                 </tr>`;
@@ -331,7 +239,7 @@
     }
 
     function openDisburseModal(username, idx) {
-        const apps = getApplications();
+        const apps = App.getApplications();
         const app = apps[username][idx];
         currentDisburseId = idx;
         currentDisburseUsername = username;
@@ -345,17 +253,17 @@
     function closeDisburseModal() { document.getElementById('disburseModal').classList.add('hidden'); }
 
     function confirmDisburse() {
-        const apps = getApplications();
+        const apps = App.getApplications();
         if (!apps[currentDisburseUsername] || !apps[currentDisburseUsername][currentDisburseId]) {
-            showToast('数据异常，请刷新重试', 'error'); return;
+            App.showToast('数据异常，请刷新重试', 'error'); return;
         }
         apps[currentDisburseUsername][currentDisburseId].status = 'paid';
         apps[currentDisburseUsername][currentDisburseId].paidAt = new Date().toISOString();
-        saveApplications(apps);
+        App.saveApplications(apps);
         closeDisburseModal();
         initDashboard();
         renderDisbursement();
-        showToast('放款成功', 'success');
+        App.showToast('放款成功', 'success');
     }
 
     // ==================== 逾期预警 ====================
@@ -409,7 +317,7 @@
 
     // ==================== 贷款需求 ====================
     function renderDemands() {
-        const demands = getDemands();
+        const demands = App.getDemands();
         if (demands.length > 0) {
             document.getElementById('demandList').innerHTML = demands.map(d => {
                 return `<tr class="hover:bg-gray-50">
@@ -419,7 +327,7 @@
                     <td class="px-6 py-4 text-sm text-gray-600">${d.term}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${d.purpose || '-'}</td>
                     <td class="px-6 py-4 text-sm text-gray-500">${d.note || '-'}</td>
-                    <td class="px-6 py-4 text-xs text-gray-400">${formatDate(d.createdAt)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${App.formatDate(d.createdAt)}</td>
                 </tr>`;
             }).join('');
             document.getElementById('demandEmpty').classList.add('hidden');
@@ -436,8 +344,8 @@
     }
 
     function renderFarmers(searchTerm) {
-        const users = getUsers();
-        const apps = getApplications();
+        const users = App.getUsers();
+        const apps = App.getApplications();
         const filtered = searchTerm
             ? users.filter(u => u.username.toLowerCase().includes(searchTerm) || (u.realName && u.realName.toLowerCase().includes(searchTerm)))
             : users;
@@ -445,16 +353,16 @@
         if (filtered.length > 0) {
             document.getElementById('farmerList').innerHTML = filtered.map(u => {
                 const userApps = apps[u.username] || [];
-                const credit = getCreditData(u.username);
+                const credit = App.getCreditScore(u.username);
                 const creditClass = credit >= 600 ? 'text-agri-600' : credit >= 500 ? 'text-warn-600' : 'text-red-600';
                 return `<tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 text-sm font-medium text-gray-900">${u.username}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${u.realName || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${maskPhone(u.phone)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${App.maskPhone(u.phone)}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${u.businessType || '-'}</td>
                     <td class="px-6 py-4"><span class="font-semibold ${creditClass}">${credit}</span></td>
                     <td class="px-6 py-4 text-sm text-gray-600">${userApps.length}</td>
-                    <td class="px-6 py-4 text-xs text-gray-400">${formatDate(u.registeredAt || new Date())}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${App.formatDate(u.registeredAt || new Date())}</td>
                 </tr>`;
             }).join('');
             document.getElementById('farmerEmpty').classList.add('hidden');
@@ -470,7 +378,7 @@
     }
 
     function initWorkbench() {
-        const apps = getApplications();
+        const apps = App.getApplications();
         const followups = getFollowups();
 
         let pendingCount = 0, disburseCount = 0;
@@ -507,7 +415,7 @@
                 return `<div class="px-6 py-3 flex items-center gap-3">
                     <span class="px-2 py-0.5 text-xs rounded ${typeColor}">${log.type}</span>
                     <span class="text-sm text-gray-700 flex-1">${log.username} - ${log.product} (${log.amount}万)</span>
-                    <span class="text-xs text-gray-400">${formatDate(log.time)}</span>
+                    <span class="text-xs text-gray-400">${App.formatDate(log.time)}</span>
                 </div>`;
             }).join('');
             document.getElementById('workLogEmpty').classList.add('hidden');
@@ -536,7 +444,7 @@
                     <td class="px-6 py-4 text-sm text-gray-600">${f.content}</td>
                     <td class="px-6 py-4"><span class="status-badge ${s.class}">${s.text}</span></td>
                     <td class="px-6 py-4 text-xs text-gray-500">${f.nextDate || '-'}</td>
-                    <td class="px-6 py-4 text-xs text-gray-400">${formatDate(f.createdAt)}</td>
+                    <td class="px-6 py-4 text-xs text-gray-400">${App.formatDate(f.createdAt)}</td>
                 </tr>`;
             }).join('');
             document.getElementById('followupEmpty').classList.add('hidden');
@@ -575,18 +483,18 @@
         // 侧边栏导航事件委托
         document.getElementById('sidebarNav').addEventListener('click', (e) => {
             const btn = e.target.closest('[data-module]');
-            if (btn) switchModule(btn.dataset.module);
+            if (btn) App.switchModule(btn.dataset.module, MODULES, MODULE_RENDER_MAP);
         });
 
         // 快捷操作事件委托
         document.querySelectorAll('.quick-action').forEach(btn => {
-            btn.addEventListener('click', () => switchModule(btn.dataset.module));
+            btn.addEventListener('click', () => App.switchModule(btn.dataset.module, MODULES, MODULE_RENDER_MAP));
         });
 
         // 概览页"查看全部"按钮
         document.querySelectorAll('[data-module="approval"]').forEach(btn => {
             if (!btn.classList.contains('sidebar-item')) {
-                btn.addEventListener('click', () => switchModule('approval'));
+                btn.addEventListener('click', () => App.switchModule('approval', MODULES, MODULE_RENDER_MAP));
             }
         });
 
@@ -604,7 +512,7 @@
             } else if (action === 'disburse' && username && idx !== undefined) {
                 openDisburseModal(username, idx);
             } else if (action === 'collect') {
-                showToast('催收记录已更新', 'success');
+                App.showToast('催收记录已更新', 'success');
             }
         });
 
@@ -630,7 +538,7 @@
             closeFollowupModal();
             renderFollowup();
             initWorkbench();
-            showToast('跟进记录已保存', 'success');
+            App.showToast('跟进记录已保存', 'success');
         });
 
         // 农户搜索
@@ -642,7 +550,7 @@
 
     // ==================== 初始化 ====================
     document.addEventListener('DOMContentLoaded', () => {
-        if (checkAdminLogin()) {
+        if (App.checkAdminLogin(App.KEYS.BANK_LOGGED_IN)) {
             initWorkbench();
             initDashboard();
         }
@@ -650,8 +558,8 @@
     });
 
     // 暴露必要函数给 HTML 内联事件（逐步移除中的过渡方案）
-    window.adminLogout = adminLogout;
-    window.switchModule = switchModule;
+    window.adminLogout = function() { App.adminLogout(App.KEYS.BANK_LOGGED_IN); };
+    window.switchModule = function(module) { App.switchModule(module, MODULES, MODULE_RENDER_MAP); };
     window.filterApproval = filterApproval;
     window.filterOverdue = filterOverdue;
     window.openApprovalModal = openApprovalModal;

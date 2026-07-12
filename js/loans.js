@@ -86,38 +86,11 @@
 
     let currentProductFilter = 'all';
 
-    // localStorage 安全操作
-    function safeGetJSON(key) {
-        try {
-            return JSON.parse(localStorage.getItem(key));
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function safeSetJSON(key, value) {
-        try {
-            localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-            console.warn('localStorage写入失败:', e.message);
-        }
-    }
-
-    // 获取登录用户
-    function getLoggedInUser() {
-        try {
-            const s = localStorage.getItem('agriCreditLoggedInUser') || sessionStorage.getItem('agriCreditLoggedInUser');
-            return s ? JSON.parse(s) : null;
-        } catch (e) {
-            return null;
-        }
-    }
-
     // 获取所有产品（默认 + 管理员添加的）
     function getAllProducts() {
         const products = defaultProducts.slice();
         const existingNames = new Set(defaultProducts.map(p => p.name));
-        const custom = safeGetJSON('agriLoanProducts') || [];
+        const custom = App.getProducts();
 
         for (const p of custom) {
             if ((p.status === 'active' || !p.status) && p.name && !existingNames.has(p.name)) {
@@ -279,8 +252,8 @@
         if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的需求金额'); return; }
         if (!term) { alert('请选择期望期限'); return; }
 
-        const demands = safeGetJSON('agriLoanDemands') || [];
-        const user = getLoggedInUser();
+        const demands = App.getDemands();
+        const user = App.getLoggedInUser();
         demands.unshift({
             id: Date.now(),
             type,
@@ -292,7 +265,7 @@
             createdAt: new Date().toISOString(),
             status: 'pending'
         });
-        safeSetJSON('agriLoanDemands', demands);
+        App.saveDemands(demands);
 
         showResult('publishResult', 'publishResultText',
             '需求发布成功！您申请的' + amount + '万元' + type + '需求已提交，稍后将自动跳转至智能匹配。', 2000);
@@ -359,9 +332,9 @@
         if (!amount || parseFloat(amount) <= 0) { alert('请输入有效的申请金额'); return; }
         if (!agree) { alert('请先阅读并同意贷款申请协议'); return; }
 
-        const user = getLoggedInUser();
+        const user = App.getLoggedInUser();
         const username = user ? user.username : name;
-        const allApps = safeGetJSON('agriLoanApplications') || {};
+        const allApps = App.getApplications();
         const userApps = allApps[username] || [];
 
         userApps.unshift({
@@ -379,7 +352,7 @@
             source: 'loans_page'
         });
         allApps[username] = userApps;
-        safeSetJSON('agriLoanApplications', allApps);
+        App.saveApplications(allApps);
 
         const message = user
             ? '贷款申请已提交！您可在"个人中心"查看审批进度，客户经理将尽快联系您（' + phone + '）。'
@@ -440,38 +413,12 @@
         });
     }
 
-    // 导航登录状态检测
-    function updateNavLoginState() {
-        const user = getLoggedInUser();
-        const notLoggedIn = document.getElementById('notLoggedIn');
-        const loggedIn = document.getElementById('loggedIn');
-
-        if (user) {
-            notLoggedIn.classList.add('hidden');
-            loggedIn.classList.remove('hidden');
-            loggedIn.classList.add('flex');
-            document.getElementById('navAvatar').textContent = (user.username || 'U').charAt(0).toUpperCase();
-            document.getElementById('navUsername').textContent = user.username || '用户';
-        } else {
-            notLoggedIn.classList.remove('hidden');
-            loggedIn.classList.add('hidden');
-            loggedIn.classList.remove('flex');
-        }
-    }
-
-    function logout() {
-        try { localStorage.removeItem('agriCreditLoggedInUser'); } catch (e) {}
-        try { sessionStorage.removeItem('agriCreditLoggedInUser'); } catch (e) {}
-        alert('已安全退出');
-        window.location.href = 'auth.html';
-    }
-
     // 暴露给 HTML 内联事件调用的接口
     window._loans = {
         selectProduct,
         filterProducts,
         doMatch,
-        logout
+        logout: function() { App.logout(); }
     };
 
     // 初始化
@@ -479,7 +426,7 @@
         renderProducts();
         fillProductSelects();
         initCharts();
-        updateNavLoginState();
+        App.updateNavLoginState();
 
         // 事件委托：产品筛选按钮
         document.getElementById('productFilters').addEventListener('click', (e) => {

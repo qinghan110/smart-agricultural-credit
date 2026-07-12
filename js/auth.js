@@ -3,67 +3,18 @@
 
   let currentType = 'user';
 
-  // 数据存取
-  function getUsers() {
-    try {
-      return JSON.parse(localStorage.getItem('agriCreditUsers')) || [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  function saveUsers(users) {
-    try {
-      localStorage.setItem('agriCreditUsers', JSON.stringify(users));
-    } catch (e) {
-      showToast('存储空间不足，请清理浏览器缓存', 'error');
-    }
-  }
-
+  // 数据存取 - 用户数据使用 App 模块
   function getBankUsers() {
-    try {
-      let bankUsers = JSON.parse(localStorage.getItem('agriBankUsers'));
-      if (!bankUsers || bankUsers.length === 0) {
-        bankUsers = [
-          { id: 1, username: 'admin', password: 'admin123', role: '审批员', limit: 100, status: 'active' },
-          { id: 2, username: 'approver', password: 'approver123', role: '审批员', limit: 50, status: 'active' },
-          { id: 3, username: 'manager', password: 'manager123', role: '产品经理', limit: 30, status: 'active' }
-        ];
-        localStorage.setItem('agriBankUsers', JSON.stringify(bankUsers));
-      }
-      return bankUsers;
-    } catch (e) {
-      return [{ id: 1, username: 'admin', password: 'admin123', role: '审批员', limit: 100, status: 'active' }];
+    var bankUsers = App.safeGetJSON(App.KEYS.BANK_USERS, null);
+    if (!bankUsers || bankUsers.length === 0) {
+      bankUsers = [
+        { id: 1, username: 'admin', password: 'admin123', role: '审批员', limit: 100, status: 'active' },
+        { id: 2, username: 'approver', password: 'approver123', role: '审批员', limit: 50, status: 'active' },
+        { id: 3, username: 'manager', password: 'manager123', role: '产品经理', limit: 30, status: 'active' }
+      ];
+      App.safeSetJSON(App.KEYS.BANK_USERS, bankUsers);
     }
-  }
-
-  function safeSetItem(storage, key, value) {
-    try {
-      storage.setItem(key, value);
-    } catch (e) {
-      showToast('存储写入失败', 'error');
-    }
-  }
-
-  // Toast
-  function showToast(msg, type) {
-    const toast = document.getElementById('toast');
-    const toastText = document.getElementById('toastText');
-    const toastIcon = document.getElementById('toastIcon');
-
-    toastText.textContent = msg;
-    const bgClass = type === 'success' ? 'bg-agri-600' : 'bg-red-500';
-    toast.className = `fixed top-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl shadow-lg text-white text-sm font-medium transform translate-y-0 opacity-100 transition-all duration-300 flex items-center gap-2 ${bgClass}`;
-
-    const iconPath = type === 'success'
-      ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
-      : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
-    toastIcon.innerHTML = iconPath;
-
-    setTimeout(() => {
-      toast.style.transform = 'translateY(-80px)';
-      toast.style.opacity = '0';
-    }, 2800);
+    return bankUsers;
   }
 
   // 面板切换
@@ -187,13 +138,12 @@
       let redirectUrl = '';
 
       if (currentType === 'user') {
-        const users = getUsers();
+        const users = App.getUsers();
         const user = users.find(x => x.username === username && x.password === password);
         if (user) {
           success = true;
           redirectUrl = 'main.html';
-          const storage = document.getElementById('remember').checked ? localStorage : sessionStorage;
-          safeSetItem(storage, 'agriCreditLoggedInUser', JSON.stringify({ username: user.username, phone: user.phone || '' }));
+          App.setLoggedInUser({ username: user.username, phone: user.phone || '' }, document.getElementById('remember').checked);
         }
       } else if (currentType === 'bank') {
         const bankUsers = getBankUsers();
@@ -201,18 +151,18 @@
         if (bankUser) {
           success = true;
           redirectUrl = 'bank.html';
-          safeSetItem(sessionStorage, 'agriAdminLoggedIn', 'true');
+          App.safeSetSession(App.KEYS.BANK_LOGGED_IN, 'true');
         }
       } else if (currentType === 'admin') {
         if (username === 'system' && password === 'system123') {
           success = true;
           redirectUrl = 'admin.html';
-          safeSetItem(sessionStorage, 'agriSystemAdminLoggedIn', 'true');
+          App.safeSetSession(App.KEYS.ADMIN_LOGGED_IN, 'true');
         }
       }
 
       if (success) {
-        showToast('登录成功，正在跳转...', 'success');
+        App.showToast('登录成功，正在跳转...', 'success');
         setTimeout(() => { window.location.href = redirectUrl; }, 1200);
       } else {
         showError(loginError, loginErrorText, '用户名或密码错误，请重试');
@@ -238,7 +188,7 @@
     const phone = document.getElementById('regPhone').value.trim();
     const agreed = document.getElementById('agree').checked;
 
-    const users = getUsers();
+    const users = App.getUsers();
 
     if (!username) { showError(registerError, registerErrorText, '请输入用户名'); return; }
     if (username.length < 4 || username.length > 20) { showError(registerError, registerErrorText, '用户名长度应为4-20个字符'); return; }
@@ -262,8 +212,8 @@
 
     setTimeout(() => {
       users.push({ username, password, phone, registeredAt: new Date().toISOString() });
-      saveUsers(users);
-      showToast('注册成功！即将跳转登录...', 'success');
+      App.saveUsers(users);
+      App.showToast('注册成功！即将跳转登录...', 'success');
       document.getElementById('registerForm').reset();
       confirmHint.classList.add('hidden');
       registerBtn.disabled = false;

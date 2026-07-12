@@ -190,63 +190,18 @@
     calculateLoan();
 
     /* ---- 登录状态 ---- */
-    function getLoggedInUser() {
-        try {
-            const s = localStorage.getItem('agriCreditLoggedInUser') || sessionStorage.getItem('agriCreditLoggedInUser');
-            return s ? JSON.parse(s) : null;
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function updateNavLoginState() {
-        const user = getLoggedInUser();
-        const notLoggedIn = document.getElementById('notLoggedIn');
-        const loggedIn = document.getElementById('loggedIn');
-        const navAvatar = document.getElementById('navAvatar');
-        const navUsername = document.getElementById('navUsername');
-
-        if (user) {
-            notLoggedIn.classList.add('hidden');
-            loggedIn.classList.remove('hidden');
-            loggedIn.classList.add('flex');
-            navAvatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
-            navUsername.textContent = user.username || '用户';
-        } else {
-            notLoggedIn.classList.remove('hidden');
-            loggedIn.classList.add('hidden');
-            loggedIn.classList.remove('flex');
-        }
-    }
-
-    function logout() {
-        try {
-            localStorage.removeItem('agriCreditLoggedInUser');
-            sessionStorage.removeItem('agriCreditLoggedInUser');
-        } catch (e) {
-            // 静默处理存储异常
-        }
-        updateNavLoginState();
-        alert('已安全退出');
-        window.location.href = 'auth.html';
-    }
-
     // 注册按钮：设置注册标记
     const registerLink = document.getElementById('registerLink');
     if (registerLink) {
         registerLink.addEventListener('click', () => {
-            try {
-                localStorage.setItem('goRegister', 'true');
-            } catch (e) {
-                // 静默处理存储异常
-            }
+            App.safeSetSession('goRegister', 'true');
         });
     }
 
     // 退出按钮
     const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) logoutBtn.addEventListener('click', logout);
+    if (logoutBtn) logoutBtn.addEventListener('click', () => App.logout());
 
     // 页面加载时检测登录状态
-    document.addEventListener('DOMContentLoaded', updateNavLoginState);
+    document.addEventListener('DOMContentLoaded', () => App.updateNavLoginState());
 })();

@@ -4,10 +4,6 @@
     --color-fin: #3b82f6;
     --color-fin-rgb: 59,130,246;
 }
-html { scroll-behavior: smooth; }
-body { font-family: 'Noto Sans SC', sans-serif; }
-a.no-underline, a.no-underline:hover { text-decoration: none; color: inherit; }
-.font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
 .hero-pattern {
     background-image:
         radial-gradient(ellipse at 20% 80%, rgba(var(--color-agri-rgb),0.06) 0%, transparent 50%),
@@ -39,17 +35,3 @@ a.no-underline, a.no-underline:hover { text-decoration: none; color: inherit; }
     50% { transform: translateY(-6px); }
 }
 .animate-float { animation: float 3s ease-in-out infinite; }
-.product-card:hover .product-icon { transform: scale(1.08) rotate(-3deg); }
-.product-icon { transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); }
-.nav-link { position: relative; }
-.nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--color-agri);
-    transition: width 0.3s ease;
-}
-.nav-link:hover::after { width: 100%; }
