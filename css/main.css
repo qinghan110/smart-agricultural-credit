@@ -1,5 +1,6 @@
 html { scroll-behavior: smooth; }
 body { font-family: 'Noto Sans SC', sans-serif; }
+a.no-underline, a.no-underline:hover { text-decoration: none; color: inherit; }
 .font-display { font-family: 'Outfit', 'Noto Sans SC', sans-serif; }
 .hero-pattern {
     background-image:
